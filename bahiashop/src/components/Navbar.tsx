@@ -3,6 +3,7 @@ import MaxWidthWrapper from "./MaxWidthWrapper"
 import { Icons } from "./Icons"
 import NavItems from "./NavItems"
 import { buttonVariants } from "./ui/button"
+import Cart from "./Cart"
 
 const Navbar = () => {
 
@@ -75,7 +76,7 @@ const Navbar = () => {
                                     )}
 
                                     <div className="ml-4 flow-root lg:ml-6">
-                                        
+                                        <Cart />
                                     </div>
                                 </div>
                             </div>
