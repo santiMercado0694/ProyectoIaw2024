@@ -20,7 +20,7 @@ export default function Signup(): JSX.Element {
 
   return (
     <section className="h-full bg-neutral-100 dark:bg-neutral-700">
-      <div className="container h-full p-10">
+       <div className="container h-full p-10">
         <div className="flex h-full items-center justify-center text-neutral-800 dark:text-neutral-200">
           <div className="w-full max-w-lg">
             <div className="block rounded-lg bg-white shadow-lg dark:bg-neutral-800">
