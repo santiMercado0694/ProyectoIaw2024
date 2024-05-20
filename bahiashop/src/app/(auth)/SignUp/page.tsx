@@ -1,74 +1,128 @@
 "use client"
 
-import { Button} from "../../../components/ui/button";
-import { Input } from "../../../components/ui/input";
-import { useState } from "react";
+import * as React from 'react';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import TextField from '@mui/material/TextField';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Link from '@mui/material/Link';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-export default function Signup(): JSX.Element {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+function Copyright(props: any) {
+  return (
+    <Typography variant="body2" color="text.secondary" align="center" {...props}>
+      {'Copyright © '}
+      <Link color="inherit" href="https://mui.com/">
+        Bahia Shop
+      </Link>{' '}
+      {new Date().getFullYear()}
+      {'.'}
+    </Typography>
+  );
+}
 
-  const handleSignup = () => {
-    // Aquí puedes agregar la lógica de registro con tu backend
-    console.log("Nombre:", firstName);
-    console.log("Apellido:", lastName);
-    console.log("Email:", email);
-    console.log("Contraseña:", password);
+// TODO remove, this demo shouldn't need to reset the theme.
+const defaultTheme = createTheme();
+
+export default function SignUp() {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    console.log({
+      email: data.get('email'),
+      password: data.get('password'),
+    });
   };
 
   return (
-    <section className="h-full bg-neutral-100 dark:bg-neutral-700">
-       <div className="container h-full p-10">
-        <div className="flex h-full items-center justify-center text-neutral-800 dark:text-neutral-200">
-          <div className="w-full max-w-lg">
-            <div className="block rounded-lg bg-white shadow-lg dark:bg-neutral-800">
-              <div className="p-8">
-                <h1 className="text-xl font-semibold mb-6">
-                  Crea tu cuenta
-                </h1>
-                <form>
-                  <Input
-                    type="text"
-                    placeholder="Nombre"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="mb-4"
-                  />
-                  <Input
-                    type="text"
-                    placeholder="Apellido"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="mb-4"
-                  />
-                  <Input
-                    type="email"
-                    placeholder="Correo electrónico"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="mb-4"
-                  />
-                  <Input
-                    type="password"
-                    placeholder="Contraseña"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="mb-6"
-                  />
-                  <Button
-                    variant="ghost" // Cambié el valor de variant a "primary" para un botón de registro
-                    onClick={handleSignup}
-                  >
-                    Registrarse
-                  </Button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <ThemeProvider theme={defaultTheme}>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Registrar cuenta
+          </Typography>
+          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  autoComplete="given-name"
+                  name="nombre"
+                  required
+                  fullWidth
+                  id="nombre"
+                  label="Nombre"
+                  autoFocus
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  required
+                  fullWidth
+                  id="apellido"
+                  label="Apellido"
+                  name="apellido"
+                  autoComplete="family-name"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email"
+                  name="email"
+                  autoComplete="email"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="contraseña"
+                  label="Contraseña"
+                  type="password"
+                  id="contraseña"
+                  autoComplete="new-password"
+                />
+              </Grid>
+            </Grid>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Registrarse
+            </Button>
+            <Grid container justifyContent="flex-end">
+              <Grid item>
+                <Link href="/SignIn" variant="body2">
+                  Ya tienes una cuenta? Iniciar sesion
+                </Link>
+              </Grid>
+            </Grid>
+          </Box>
+        </Box>
+        <Copyright sx={{ mt: 5 }} />
+      </Container>
+    </ThemeProvider>
   );
 }

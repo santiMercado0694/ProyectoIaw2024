@@ -1,5 +1,5 @@
 export const Icons = {
     logo: ({ ...rest }) => (
-        <img src="/logo.webp" alt="Logo" {...rest} />
+        <img src="/Logo.webp" alt="Logo" {...rest} />
     ),
 };
