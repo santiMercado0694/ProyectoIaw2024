@@ -109,11 +109,6 @@ export default function SignInSide() {
                 Iniciar Sesion
               </Button>
               <Grid container>
-                <Grid item xs>
-                  <Link href="#" variant="body2">
-                    Olvidaste la contraseña?
-                  </Link>
-                </Grid>
                 <Grid item>
                   <Link href="/SignUp" variant="body2">
                     {"No te has registrado? Registrate aqui"}

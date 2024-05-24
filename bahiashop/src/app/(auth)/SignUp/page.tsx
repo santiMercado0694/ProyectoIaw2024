@@ -1,12 +1,11 @@
-"use client"
+"use client";
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -14,6 +13,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useGlobalContext } from '@/components/StoreProvider';
 
 function Copyright(props: any) {
   return (
@@ -29,16 +29,61 @@ function Copyright(props: any) {
 }
 
 // TODO remove, this demo shouldn't need to reset the theme.
+
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const router = useRouter();
+  const { addUser } = useGlobalContext();
+  const [formData, setFormData] = React.useState({
+    nombre: '',
+    apellido: '',
+    email: '',
+    contraseña: '',
+  });
+  const [errors, setErrors] = React.useState({
+    nombre: false,
+    apellido: false,
+    email: false,
+    contraseña: false,
+    form: false, // Nuevo estado para el mensaje general
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+
+    const { nombre, apellido, email, contraseña } = formData;
+
+    if (!nombre.trim() || !apellido.trim() || !email.trim() || !contraseña.trim()) {
+      setErrors((prev) => ({ ...prev, form: true })); // Mostrar el mensaje general
+      setErrors((prev) => ({ ...prev, nombre: !nombre.trim(), apellido: !apellido.trim(), email: !email.trim(), contraseña: !contraseña.trim() }));
+      return;
+    }
+
+    setErrors((prev) => ({ ...prev, form: false, nombre: false, apellido: false, email: false, contraseña: false }));
+
+    try {
+      // Cambia la clave 'contraseña' a 'password' en el objeto newUser
+      const newUser = {
+        nombre,
+        apellido,
+        email,
+        password: contraseña, // Cambio de 'contraseña' a 'password'
+      };
+
+      await addUser(newUser);
+      alert('Usuario registrado con éxito');
+      router.push('/SignIn');
+      router.refresh();
+    } catch (error) {
+      console.error('Error al registrar el usuario:', error);
+      alert('Error al registrar el usuario');
+    }
   };
 
   return (
@@ -70,6 +115,10 @@ export default function SignUp() {
                   id="nombre"
                   label="Nombre"
                   autoFocus
+                  error={errors.nombre}
+                  helperText={errors.nombre && 'Por favor, ingresa tu nombre'}
+                  value={formData.nombre}
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -80,6 +129,10 @@ export default function SignUp() {
                   label="Apellido"
                   name="apellido"
                   autoComplete="family-name"
+                  error={errors.apellido}
+                  helperText={errors.apellido && 'Por favor, ingresa tu apellido'}
+                  value={formData.apellido}
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -90,6 +143,10 @@ export default function SignUp() {
                   label="Email"
                   name="email"
                   autoComplete="email"
+                  error={errors.email}
+                  helperText={errors.email && 'Por favor, ingresa tu correo electrónico'}
+                  value={formData.email}
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -101,6 +158,10 @@ export default function SignUp() {
                   type="password"
                   id="contraseña"
                   autoComplete="new-password"
+                  error={errors.contraseña}
+                  helperText={errors.contraseña && 'Por favor, ingresa tu contraseña'}
+                  value={formData.contraseña}
+                  onChange={handleChange}
                 />
               </Grid>
             </Grid>
@@ -115,7 +176,7 @@ export default function SignUp() {
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link href="/SignIn" variant="body2">
-                  Ya tienes una cuenta? Iniciar sesion
+                  Ya tienes una cuenta? Iniciar sesión
                 </Link>
               </Grid>
             </Grid>
