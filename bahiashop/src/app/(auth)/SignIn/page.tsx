@@ -14,6 +14,9 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useRouter } from 'next/navigation';
+import { FormEvent } from 'react';
+import { signIn } from 'next-auth/react';
 
 function Copyright(props: any) {
   return (
@@ -33,13 +36,21 @@ const defaultTheme = createTheme();
 const backgroundImage = '/Signin.webp';
 
 export default function SignInSide() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
+  const router = useRouter();
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const response = await signIn('credentials', {
+      email: formData.get('email'),
+      password: formData.get('password'),
+      redirect: false,
     });
+
+    console.log({ response });
+    if (!response?.error) {
+      router.push('/');
+      router.refresh();
+    }
   };
 
   return (
@@ -90,10 +101,10 @@ export default function SignInSide() {
                 margin="normal"
                 required
                 fullWidth
-                name="contraseña"
-                label="Contraseña"
+                name="password"
+                label="password"
                 type="password"
-                id="contraseña"
+                id="password"
                 autoComplete="current-password"
               />
               <FormControlLabel

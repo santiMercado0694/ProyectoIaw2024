@@ -1,14 +1,22 @@
-import Link from "next/link"
-import MaxWidthWrapper from "./MaxWidthWrapper"
-import { Icons } from "./Icons"
-import NavItems from "./NavItems"
-import { buttonVariants } from "./ui/button"
-import Cart from "./Cart"
+"use client";
+
+import Link from "next/link";
+import MaxWidthWrapper from "./MaxWidthWrapper";
+import { Icons } from "./Icons";
+import NavItems from "./NavItems";
+import { buttonVariants } from "./ui/button";
+import Cart from "./Cart";
+import { signOut, useSession } from "next-auth/react";
+import { useRouter } from 'next/navigation';
 
 const Navbar = () => {
+    const { data: session } = useSession();
+    const router = useRouter();
 
-    //User de prueba
-    const user = null
+    // Función para manejar el cierre de sesión
+    const handleSignOut = async () => {     
+        await signOut();
+    };
 
     return (
         <div className="bg-white sticky z-50 top-0 inset-x-0 h-16">
@@ -30,51 +38,28 @@ const Navbar = () => {
 
                             <div className="ml-auto flex items-center">
                                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                                    {user ? null : (
-                                        <Link 
-                                            href='/SignIn' 
-                                            className={buttonVariants({
-                                                variant: "ghost",
-                                            })}>
-                                            INICIAR SESION
-                                        </Link>
+                                    {session ? (
+                                        <>
+                                            <button 
+                                                onClick={handleSignOut}
+                                                className={buttonVariants({
+                                                    variant: "ghost",
+                                                })}
+                                            >
+                                                CERRAR SESIÓN
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Link href='/SignIn' className={buttonVariants({ variant: "ghost" })}>
+                                                INICIAR SESIÓN
+                                            </Link>
+                                            <span className="h-6 w-px bg-gray-200" aria-hidden="true" />
+                                            <Link href='/SignUp' className={buttonVariants({ variant: "ghost" })}>
+                                                REGISTRARSE
+                                            </Link>
+                                        </>
                                     )}
-
-                                    {user ? null: (
-                                        <span 
-                                            className="h-6 w-px bg-gray-200" 
-                                            aria-hidden="true"
-                                        />
-                                    )}
-
-                                    {user ? ( 
-                                        <p></p> 
-                                    ) : ( 
-                                        <Link 
-                                            href={'/SignUp'} 
-                                            className={buttonVariants({
-                                                variant: "ghost",
-                                            })}>
-                                            REGISTRARSE
-                                        </Link>
-                                    )}
-
-                                    {user ? (
-                                        <span 
-                                            className="h-6 w-px bg-gray-200" 
-                                            aria-hidden="true"
-                                        />
-                                    ) : null}
-
-                                    {user ? null : (
-                                        <div className="flex lg:ml-6">
-                                            <span 
-                                                className="h-6 w-px bg-gray-200" 
-                                                aria-hidden="true"
-                                            /> 
-                                        </div>
-                                    )}
-
                                     <div className="ml-4 flow-root lg:ml-6">
                                         <Cart />
                                     </div>
@@ -85,7 +70,7 @@ const Navbar = () => {
                 </MaxWidthWrapper>
             </header>
         </div>
-    )
+    );
 }
 
-export default Navbar
+export default Navbar;

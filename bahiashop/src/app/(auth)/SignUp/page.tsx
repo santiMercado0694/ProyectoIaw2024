@@ -13,26 +13,9 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useGlobalContext } from '@/components/StoreProvider';
+import { useGlobalContext } from '@/context/StoreProvider';
 
-function Copyright(props: any) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Bahia Shop
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
-
-const defaultTheme = createTheme();
-
-export default function SignUp() {
+function SignUp() {
   const router = useRouter();
   const { addUser } = useGlobalContext();
   const [formData, setFormData] = React.useState({
@@ -65,6 +48,18 @@ export default function SignUp() {
       return;
     }
 
+    // Validación del email
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setErrors((prev) => ({ ...prev, email: true }));
+      return;
+    }
+
+    // Validación de la contraseña
+    if (contraseña.length < 6) {
+      setErrors((prev) => ({ ...prev, contraseña: true }));
+      return;
+    }
+
     setErrors((prev) => ({ ...prev, form: false, nombre: false, apellido: false, email: false, contraseña: false }));
 
     try {
@@ -87,7 +82,7 @@ export default function SignUp() {
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <ThemeProvider theme={createTheme()}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
@@ -144,7 +139,7 @@ export default function SignUp() {
                   name="email"
                   autoComplete="email"
                   error={errors.email}
-                  helperText={errors.email && 'Por favor, ingresa tu correo electrónico'}
+                  helperText={errors.email && 'Por favor, ingresa un correo electrónico válido'}
                   value={formData.email}
                   onChange={handleChange}
                 />
@@ -159,7 +154,7 @@ export default function SignUp() {
                   id="contraseña"
                   autoComplete="new-password"
                   error={errors.contraseña}
-                  helperText={errors.contraseña && 'Por favor, ingresa tu contraseña'}
+                  helperText={errors.contraseña && 'La contraseña debe tener al menos 6 caracteres'}
                   value={formData.contraseña}
                   onChange={handleChange}
                 />
@@ -176,14 +171,15 @@ export default function SignUp() {
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link href="/SignIn" variant="body2">
-                  Ya tienes una cuenta? Iniciar sesión
+                  ¿Ya tienes una cuenta? Iniciar sesión
                 </Link>
               </Grid>
             </Grid>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 5 }} />
       </Container>
     </ThemeProvider>
   );
 }
+
+export default SignUp;
