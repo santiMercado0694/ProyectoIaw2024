@@ -2,8 +2,13 @@
 
 import React, { useState, useContext, useEffect, ReactNode } from 'react';
 
-// Interfaces para tipos de datos
-interface Product {
+
+export interface Category {
+  id: string;
+  nombre: string;
+}
+
+export interface Product {
   id: string;
   name: string;
   price: number;
@@ -13,10 +18,6 @@ interface Product {
   rating: number;
 }
 
-interface Category {
-  id: string;
-  name: string;
-}
 
 interface User {
   id: string;
@@ -35,6 +36,7 @@ interface AppContextProps {
   users: User[];
   setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
   setSearch: React.Dispatch<React.SetStateAction<string>>;
+  getProductsFromAPI: () => Promise<void>;
   getProductsByCategory: (id: string) => Promise<void>;
   addProductCart: (product: Omit<Product, 'quantity'>) => Promise<void>;
   updateProductStock: (id: string, stock: number) => Promise<void>;
@@ -325,6 +327,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       search,
       categories,
       users,
+      getProductsFromAPI,
       setCategories,
       setSearch,
       getProductsByCategory,
@@ -339,7 +342,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       addUser,
       updateUser,
       deleteUser,
-      authenticateUser,
+      authenticateUser
     }}>
       {children}
     </AppContext.Provider>

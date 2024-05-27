@@ -1,13 +1,17 @@
 "use client"
 
-import { PRODUCT_CATEGORIES } from "@/config"
 import { useEffect, useRef, useState } from "react"
 import NavItem from "./NavItem"
 import { useOnClickOutside } from "@/hooks/use-on-click-outside"
+import {useGlobalContext} from "@/context/StoreProvider";
+import Link from "next/link";
+import Loading from "@/components/Loading";
 
 const NavItems = () => {
+    
+    const {categories} = useGlobalContext();
 
-    const [activeIndex, setActiveIndex] = useState<null | number>(null)
+    /*const [activeIndex, setActiveIndex] = useState<null | number>(null)
     const isAnyOpen = activeIndex !== null
     const navRef = useRef<HTMLDivElement | null>(null)
 
@@ -25,29 +29,21 @@ const NavItems = () => {
         }
     }, [])
 
-    useOnClickOutside(navRef, () => setActiveIndex(null))
-
-        
-    return <div className="flex gap-4 h-full" ref={navRef}>
-        {PRODUCT_CATEGORIES.map((category, i) => {
-            const handleOpen = () => {
-                if(activeIndex === i) {
-                    setActiveIndex(null)
-                } else{
-                    setActiveIndex(i)
-                }
-            }
-
-            const isOpen = i === activeIndex
-
+    useOnClickOutside(navRef, () => setActiveIndex(null))*/
+    
+    if(categories.length < 1)
+    {
+        return (<Loading></Loading>);
+    }
+    
+    return <div className="flex gap-4 h-full"> {/*ref={navRef}>*/}
+        {categories.map((category, i) => {
             return (
-                <NavItem 
-                    category={category} 
-                    handleOpen={handleOpen} 
-                    isOpen={isOpen}
-                    key={category.value}
-                    isAnyOpen={isAnyOpen}
-                />
+              <Link key={category.id} href={'/products?id=' + category.id} className=" flex min-w-20 justify-center items-center" >
+                  <h1 className="">
+                    {category.nombre}
+                  </h1>
+              </Link>
             )
         })}
     </div>
