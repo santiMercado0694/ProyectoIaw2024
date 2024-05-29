@@ -1,52 +1,35 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, ChangeEvent  } from "react"
 import NavItem from "./NavItem"
 import { useOnClickOutside } from "@/hooks/use-on-click-outside"
 import {useGlobalContext} from "@/context/StoreProvider";
 import Link from "next/link";
-import Loading from "@/components/Loading";
 
 const NavItems = () => {
-    
-    const {categories} = useGlobalContext();
+    const { categories } = useGlobalContext();
+    const [selectedCategory, setSelectedCategory] = useState<string>("");
 
-    /*const [activeIndex, setActiveIndex] = useState<null | number>(null)
-    const isAnyOpen = activeIndex !== null
-    const navRef = useRef<HTMLDivElement | null>(null)
+    const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
+        setSelectedCategory(event.target.value);
+    };
 
-    useEffect(() => {
-        const handler = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                setActiveIndex(null)
-            }
-        }
-    
-        document.addEventListener('keydown', handler)
-    
-        return () => {
-            document.removeEventListener('keydown', handler)
-        }
-    }, [])
+    return (
+        <div className="flex gap-4 h-full items-center">
+            <select
+                value={selectedCategory}
+                onChange={handleChange}
+                className="block w-full max-w-xs p-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            >
+                <option value="" disabled>Categorias</option>
+                {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                        {category.nombre}
+                    </option>
+                ))}
+            </select>
+        </div>
+    );
+};
 
-    useOnClickOutside(navRef, () => setActiveIndex(null))*/
-    
-    if(categories.length < 1)
-    {
-        return (<Loading></Loading>);
-    }
-    
-    return <div className="flex gap-4 h-full"> {/*ref={navRef}>*/}
-        {categories.map((category, i) => {
-            return (
-              <Link key={category.id} href={'/products?id=' + category.id} className=" flex min-w-20 justify-center items-center" >
-                  <h1 className="">
-                    {category.nombre}
-                  </h1>
-              </Link>
-            )
-        })}
-    </div>
-}
-
-export default NavItems
+export default NavItems;
