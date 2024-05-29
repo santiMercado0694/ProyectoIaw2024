@@ -1,56 +1,35 @@
 "use client"
 
-import { PRODUCT_CATEGORIES } from "@/config"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, ChangeEvent  } from "react"
 import NavItem from "./NavItem"
 import { useOnClickOutside } from "@/hooks/use-on-click-outside"
+import {useGlobalContext} from "@/context/StoreProvider";
+import Link from "next/link";
 
 const NavItems = () => {
+    const { categories } = useGlobalContext();
+    const [selectedCategory, setSelectedCategory] = useState<string>("");
 
-    const [activeIndex, setActiveIndex] = useState<null | number>(null)
-    const isAnyOpen = activeIndex !== null
-    const navRef = useRef<HTMLDivElement | null>(null)
+    const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
+        setSelectedCategory(event.target.value);
+    };
 
-    useEffect(() => {
-        const handler = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                setActiveIndex(null)
-            }
-        }
-    
-        document.addEventListener('keydown', handler)
-    
-        return () => {
-            document.removeEventListener('keydown', handler)
-        }
-    }, [])
+    return (
+        <div className="flex gap-4 h-full items-center">
+            <select
+                value={selectedCategory}
+                onChange={handleChange}
+                className="block w-full max-w-xs p-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            >
+                <option value="" disabled>Categorias</option>
+                {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                        {category.nombre}
+                    </option>
+                ))}
+            </select>
+        </div>
+    );
+};
 
-    useOnClickOutside(navRef, () => setActiveIndex(null))
-
-        
-    return <div className="flex gap-4 h-full" ref={navRef}>
-        {PRODUCT_CATEGORIES.map((category, i) => {
-            const handleOpen = () => {
-                if(activeIndex === i) {
-                    setActiveIndex(null)
-                } else{
-                    setActiveIndex(i)
-                }
-            }
-
-            const isOpen = i === activeIndex
-
-            return (
-                <NavItem 
-                    category={category} 
-                    handleOpen={handleOpen} 
-                    isOpen={isOpen}
-                    key={category.value}
-                    isAnyOpen={isAnyOpen}
-                />
-            )
-        })}
-    </div>
-}
-
-export default NavItems
+export default NavItems;
