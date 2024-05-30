@@ -1,26 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "flowbite-react";
 import { useGlobalContext } from "@/context/StoreProvider";
-import { Pagination } from "./Pagination"; 
-import { FaShoppingCart } from 'react-icons/fa'; // Importa el ícono de carrito
+import { Pagination } from "./Pagination";
+import { FaShoppingCart } from 'react-icons/fa';
 
 export function ProductCard() {
-  const { productos } = useGlobalContext();
+  const { productos, search, getProductsFromAPI  } = useGlobalContext();
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4; 
+  const itemsPerPage = 4;
+
+  useEffect(() => {
+    setCurrentPage(1); 
+  }, [search]);
+
+  useEffect(() => {
+    getProductsFromAPI(); 
+  }, []);
+
+  // Filtrar productos por búsqueda
+  const filteredProducts = search
+    ? productos.filter(product => product.name.toLowerCase().includes(search.toLowerCase()))
+    : productos;
 
   // Calcular el número total de páginas
-  const totalPages = Math.ceil(productos.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
   // Calcular los productos a mostrar en la página actual
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProducts = productos.slice(indexOfFirstItem, indexOfLastItem);
+  const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
 
   // Manejar el cambio de página
-  const handlePageChange = (pageNumber: number) => {
+  const handlePageChange = (pageNumber : number) => {
     setCurrentPage(pageNumber);
   };
 
@@ -55,7 +68,7 @@ export function ProductCard() {
           </Card>
         ))}
       </div>
-      
+
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
