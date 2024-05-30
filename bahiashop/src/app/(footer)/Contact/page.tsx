@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import Typography from '@mui/material/Typography';
+import { useRouter } from 'next/navigation';
 
 const ContactUsPage: React.FC = () => {
+  const router = useRouter();
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -48,6 +50,9 @@ const ContactUsPage: React.FC = () => {
       // Aquí podrías agregar la lógica para enviar el mensaje, como una solicitud a una API, etc.
       // Por simplicidad, simplemente estableceremos el estado de formSubmitted en true.
       setFormSubmitted(true);
+      setTimeout(() => {
+        router.push('/');
+      }, 5000);
     } else {
       setFormErrors(newErrors);
     }

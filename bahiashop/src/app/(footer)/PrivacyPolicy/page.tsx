@@ -29,7 +29,7 @@ const PrivacyPolicy: React.FC = () => {
           <Typography variant="h4" className="text-xl font-bold mb-2">Definiciones</Typography>
           <ul className="list-disc ml-6 mb-4">
             <li><strong>Cuenta:</strong> significa una cuenta única creada para que usted acceda a nuestro Servicio o partes de nuestro Servicio.</li>
-            <li><strong>Afiliado:</strong> significa una entidad que controla, es controlada por o está bajo control común con una parte, donde "control" significa propiedad del 50% o más de las acciones, interés patrimonial u otros valores con derecho a voto para la elección de directores u otra autoridad de gestión.</li>
+            <li><strong>Afiliado:</strong> significa una entidad que controla, es controlada por o está bajo control común con una parte, donde &quot;control&quot; significa propiedad del 50% o más de las acciones, interés patrimonial u otros valores con derecho a voto para la elección de directores u otra autoridad de gestión.</li>
             <li><strong>Empresa:</strong> se refiere a Bahia Shop.</li>
             <li><strong>Cookies:</strong> son archivos pequeños que se colocan en su computadora, dispositivo móvil u otro dispositivo por un sitio web, que contienen los detalles de su historial de navegación en ese sitio web entre sus muchos usos.</li>
             <li><strong>País:</strong> se refiere a: Argentina</li>

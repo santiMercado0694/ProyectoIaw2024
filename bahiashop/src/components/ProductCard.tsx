@@ -5,19 +5,16 @@ import { Card } from "flowbite-react";
 import { useGlobalContext } from "@/context/StoreProvider";
 import { Pagination } from "./Pagination";
 import { FaShoppingCart } from 'react-icons/fa';
+import Loading from "./Loading";
 
 export function ProductCard() {
-  const { productos, search, getProductsFromAPI  } = useGlobalContext();
+  const { productos, search, getProductsFromAPI, loading  } = useGlobalContext();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
 
   useEffect(() => {
     setCurrentPage(1); 
   }, [search]);
-
-  useEffect(() => {
-    getProductsFromAPI(); 
-  }, []);
 
   // Filtrar productos por búsqueda
   const filteredProducts = search

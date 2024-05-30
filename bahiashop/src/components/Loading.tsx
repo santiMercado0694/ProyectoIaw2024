@@ -1,13 +1,14 @@
-// La idea es mostrar esta ventanita cuando se están cargando algunos datos
-
 "use client"
 
-const Loading = ( ) => {
+import React from 'react';
+import { Spinner } from 'reactstrap';
 
-    // TODO estilizar esto como corresponde
-    return (
-        <div> Cargando... </div>
-    )
-}
+const Loading = () => {
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <Spinner className="text-blue-500" style={{ width: '3rem', height: '3rem' }} />
+    </div>
+  );
+};
 
-export default Loading
+export default Loading;
