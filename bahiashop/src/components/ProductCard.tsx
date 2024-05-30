@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Card } from "flowbite-react";
 import { useGlobalContext } from "@/context/StoreProvider";
 import { Pagination } from "./Pagination"; 
+import { FaShoppingCart } from 'react-icons/fa'; // Importa el ícono de carrito
 
 export function ProductCard() {
   const { productos } = useGlobalContext();
@@ -45,9 +46,10 @@ export function ProductCard() {
               <span className="text-3xl font-bold text-gray-900 dark:text-white mb-3">${producto.price}</span>
               <a
                 href="#"
-                className="w-full rounded-lg bg-cyan-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-cyan-800 focus:outline-none focus:ring-4 focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800"
+                className="w-full flex items-center justify-center space-x-2 rounded-lg bg-cyan-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-cyan-800 focus:outline-none focus:ring-4 focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800"
               >
-                Agregar al carrito
+                <FaShoppingCart /> {/* Ícono de carrito */}
+                <span>Agregar al carrito</span>
               </a>
             </div>
           </Card>

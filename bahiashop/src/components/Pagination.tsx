@@ -8,7 +8,7 @@ interface PaginationProps {
 
 export function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
   return (
-    <div className="flex justify-center mt-4">
+    <div className="flex justify-center mt-8">
       <nav>
         <ul className="inline-flex space-x-2">
           {[...Array(totalPages).keys()].map((number: number) => (
