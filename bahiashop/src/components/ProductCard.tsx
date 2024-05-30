@@ -1,47 +1,39 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import AddToCartButton from "./AddToCartButton";
-import {Product} from '@/context/StoreProvider';
+import { Card } from "flowbite-react";
+import { useGlobalContext } from "@/context/StoreProvider";
 
-// import { useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Typography from '@mui/material/Typography';
-import {formatPrice} from "@/lib/utils";
+export function ProductCard() {
+  const { productos } = useGlobalContext();
 
-const ProductCard = ( { product } : {product : Product} ) => {
-
-  // TODO estilizar esto como corresponde
-  
-  //const theme = useTheme();
-  
   return (
-    <Card sx={{ display: 'flex' }} className="w-5/12 h-80 mt-4 mb-4 justify-around items-center">
-      <Box sx={{ display: 'flex', flexDirection: 'column' }} >
-        <CardContent sx={{ flex: '1 0 auto' }}>
-          <Typography component="div" variant="h5">
-            {product.name}
-          </Typography>
-          <Typography variant="subtitle1" color="text.secondary" component="div">
-            {formatPrice(product.price)}
-          </Typography>
-        </CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', pl: 1, pb: 1 }} className="justify-center">
-          <AddToCartButton id={product.id} />
-        </Box>
-      </Box>
-      <CardMedia
-        component="img"
-        sx={{ width: '50%', height: '60%' }}
-        image={'/products/'+product.image_path}
-        alt="prod img"
-      />
-    </Card>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {productos.map(producto => (
+        <Card
+          key={producto.id}
+          className="max-w-sm transform transition duration-300 hover:scale-105 hover:shadow-lg"
+          imgAlt={producto.name}
+          imgSrc={`/products/${producto.image_path}`}
+        >
+          <a href="#">
+            <h5 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
+              {producto.name}
+            </h5>
+          </a>
+          <div className="text-gray-700 dark:text-gray-300 mb-2">
+            {producto.details}
+          </div>
+          <div className="flex flex-col items-start justify-between space-y-2">
+            <span className="text-3xl font-bold text-gray-900 dark:text-white mb-3">${producto.price}</span>
+            <a
+              href="#"
+              className="w-full rounded-lg bg-cyan-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-cyan-800 focus:outline-none focus:ring-4 focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800"
+            >
+              Agregar al carrito
+            </a>
+          </div>
+        </Card>
+      ))}
+    </div>
   );
-  
 }
-
-export default ProductCard

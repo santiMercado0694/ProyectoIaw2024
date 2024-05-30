@@ -11,9 +11,11 @@ export interface Category {
 export interface Product {
   id: string;
   name: string;
+  details: string;
+  description: string;
   price: number;
   stock: number;
-  quantity: number;
+  category_id: string;
   image_path: string;
   rating: number;
 }

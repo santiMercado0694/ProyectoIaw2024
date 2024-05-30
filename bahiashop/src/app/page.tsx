@@ -1,4 +1,5 @@
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
+import { ProductCard } from "@/components/ProductCard";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowDownToLine, CheckCircle, DollarSign } from "lucide-react";
 import Link from "next/link";
@@ -28,26 +29,9 @@ export default function Home() {
   return (
     <>
     <MaxWidthWrapper >
-      <div className="py-20 mx-auto text-center flex flex-col items-center max-w-3x1">
-        <h1 className="text-4x1 font-bold tracking-tight text-gray-900 sm:text-6xL">
-          Bienvenidos a {' '}
-          <span className="text-blue-600">
-            BAHIA SHOP
-          </span>
-          .
-        </h1>
-        <p className="mt-6 text-lg max-w-prose text-muted-foreground">
-          Bienvenidos a BahiaShop. Lider en ventas en el area sur
-          de la provincia de Buenos Aires. Todos nuestro productos
-          estan protegidos por nuestra garantia.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 mt-6">
-          <Link href='/products' className={buttonVariants()}> Buscar Tendencias</Link>
-          <Button variant="ghost"> Nuestra Garantia &rarr;</Button>
-        </div>
-      </div>
+    
+      <ProductCard/>
 
-      {/* PROXIMAMENTE: LISTA DE PRODUCTOS */}
     </MaxWidthWrapper>
 
     <section className="border-t border-gray-200 bg-gray-50">
