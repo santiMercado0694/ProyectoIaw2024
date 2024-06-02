@@ -1,8 +1,8 @@
 "use client"
 
-import MaxWidthWrapper from "@/components/MaxWidthWrapper";
-import { ProductCard } from "@/components/ProductCard";
-import SearchBar from "@/components/SearchBar";
+import MaxWidthWrapper from "@/components/layouts/MaxWidthWrapper";
+import { ProductCard } from "@/components/product/ProductCard";
+import SearchBar from "@/components/layouts/SearchBar";
 import Link from "next/link";
 import { useGlobalContext } from "@/context/StoreProvider";
 import { useState } from "react";

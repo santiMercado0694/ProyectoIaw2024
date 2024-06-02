@@ -1,7 +1,7 @@
 'use client'
 
 
-import MaxWidthWrapper from "@/components/MaxWidthWrapper";
+import MaxWidthWrapper from "@/components/layouts/MaxWidthWrapper";
 
 const Payment = () => {
   

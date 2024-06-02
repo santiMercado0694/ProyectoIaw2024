@@ -3,9 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import MaxWidthWrapper from "./MaxWidthWrapper";
-import { Icons } from "./Icons";
-import { buttonVariants } from "./ui/button";
-import Cart from "./Cart";
+import { Icons } from "../Icons";
+import { buttonVariants } from "../ui/button";
+import Cart from "../cart/Cart";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
 

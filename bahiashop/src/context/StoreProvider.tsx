@@ -15,7 +15,7 @@ export interface Product {
   description: string;
   price: number;
   stock: number;
-  category_id: string;
+  category_id: number;
   image_path: string;
   rating: number;
 }
@@ -40,6 +40,8 @@ interface AppContextProps {
   setSearch: React.Dispatch<React.SetStateAction<string>>;
   getProductsFromAPI: () => Promise<void>;
   getProductsByCategory: (id: string) => Promise<void>;
+  getProductById: (id: string) => Promise<Product>;
+  getProductByName: (name: string) => Promise<void>;
   addProductCart: (product: Omit<Product, 'quantity'>) => Promise<void>;
   updateProductStock: (id: string, stock: number) => Promise<void>;
   updateProductQuantity: (id: string, quantity: number) => Promise<void>;
@@ -98,6 +100,40 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       console.error('Error:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getProductById = async (id: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener el producto por ID');
+      }
+      const data = await response.json();
+      setLoading(false);
+      return data;
+    } catch (error) {
+      console.error('Error:', error);
+      setLoading(false);
+      return null;
+    }
+  };
+
+  const getProductByName = async (name: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/name/${name}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener el producto por nombre');
+      }
+      const data = await response.json();
+      setLoading(false);
+      return data;
+    } catch (error) {
+      console.error('Error:', error);
+      setLoading(false);
+      return null;
     }
   };
 
@@ -333,6 +369,8 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       setCategories,
       setSearch,
       getProductsByCategory,
+      getProductById,
+      getProductByName,
       addProductCart,
       updateProductStock,
       updateProductQuantity,
