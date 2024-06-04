@@ -1,6 +1,8 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
+import Loader from "react-loader-spinner"; 
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css"; 
 import { useGlobalContext, Product } from '@/context/StoreProvider';
 import MaxWidthWrapper from '@/components/layouts/MaxWidthWrapper';
 import ProductDetails from './ProductDetails';
@@ -26,15 +28,22 @@ const Producto = () => {
         }
     }, [ProductId, getProductById, product]); // Agregamos product como dependencia
 
+    if(loading) {
+        <Loader 
+            type="Puff"
+            color="#00BFFF"
+            height={100} 
+            width={100} 
+        />
+    }
+
     return (
         <div>
             <MaxWidthWrapper>
-                {loading ? (
-                    <div>Cargando...</div>
-                ) : product ? (
+                {product ? (
                     <ProductDetails product={product} />
                 ) : (
-                    <div>Producto no encontrado</div>
+                    <div> </div>
                 )}
             </MaxWidthWrapper>
         </div>

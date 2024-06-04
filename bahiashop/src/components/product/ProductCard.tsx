@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Card } from "flowbite-react";
 import Link from "next/link"; // Importa Link de Next.js
-import { useGlobalContext } from "@/context/StoreProvider";
+import { useGlobalContext, Product } from "@/context/StoreProvider";
 import { Pagination } from "../layouts/Pagination";
 import { FaShoppingCart } from 'react-icons/fa';
-import Loading from "../layouts/Loading";
+import { useRouter } from 'next/navigation';
+import { Router } from "lucide-react";
 
 export function ProductCard() {
   const { productos, search, getProductsFromAPI, loading, getProductById  } = useGlobalContext();
@@ -24,6 +25,12 @@ export function ProductCard() {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
 
+  const router = useRouter();
+
+  const handleClick = (product: any ) => {
+    router.push(`/Product/${product.id}`);
+  };
+
   const handlePageChange = (pageNumber : number) => {
     setCurrentPage(pageNumber);
   };
@@ -38,18 +45,22 @@ export function ProductCard() {
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {currentProducts.map(producto => (
-          <Link href={`/Product/${producto.id}`} key={producto.id} passHref>
             <Card
               className="max-w-sm transform transition duration-300 hover:scale-105 hover:shadow-lg"
               imgAlt={producto.name}
               imgSrc={`/products/${producto.image_path}`}
             >
               <div>
-                <h5 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
+                <h5 
+                  className="text-xl font-semibold tracking-tight text-center text-gray-900 dark:text-white transition duration-300 transform hover:scale-125 cursor-pointer"
+                  onClick={() => handleClick(producto)}
+                >
                   {producto.name}
                 </h5>
               </div>
-              <div className="text-gray-700 dark:text-gray-300 mb-2">
+              <div 
+                className="text-gray-700 dark:text-gray-300 mb-2 text-center"
+              >
                 {producto.details}
               </div>
               <div className="flex flex-col items-start justify-between space-y-2">
@@ -64,7 +75,6 @@ export function ProductCard() {
                 </button>
               </div>
             </Card>
-          </Link>
         ))}
       </div>
 
