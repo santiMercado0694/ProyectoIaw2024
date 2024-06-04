@@ -1,14 +1,43 @@
-import React from 'react';
+"use client"
+
+import React, { useEffect, useState } from 'react';
 import Typography from '@mui/material/Typography';
+import Loader from "react-loader-spinner"; 
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css"; 
+import MaxWidthWrapper from '@/components/layouts/MaxWidthWrapper';
 
 const PrivacyPolicy: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000); // Simula una carga de 3 segundos, puedes ajustar el tiempo según tu necesidad
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
+   <MaxWidthWrapper>
+    {loading ? (
+        <div className="flex justify-center items-center h-screen">
+          <Loader
+            type="Puff"
+            color="#00BFFF"
+            height={100}
+            width={100}
+            timeout={1000} 
+          />
+        </div>
+      ) : (
     <div className="container mx-auto py-8">
       {/* Título principal */}
-      <Typography variant="h1" className="text-3xl font-bold text-center mb-4">Política de Privacidad</Typography>
+      <Typography variant="h2" className="text-3xl font-bold text-center mb-4">Política de Privacidad</Typography>
+      <div className="mt-6"></div>
 
       {/* Última actualización */}
       <Typography className="mb-4"><strong>Última actualización:</strong> 30 de mayo de 2024</Typography>
+      <div className="mt-6"></div>
 
       {/* Descripción */}
       <Typography className="mb-4">
@@ -19,10 +48,12 @@ const PrivacyPolicy: React.FC = () => {
       <Typography className="mb-4">
         Utilizamos sus datos personales para proporcionar y mejorar el Servicio. Al utilizar el Servicio, usted acepta la recopilación y el uso de información de acuerdo con esta Política de Privacidad.
       </Typography>
+      <div className="mt-6"></div>
 
       {/* Interpretación y Definiciones */}
       <div className="mb-8">
-        <Typography variant="h2" className="text-2xl font-bold mb-4">Interpretación y Definiciones</Typography>
+        <Typography variant="h3" className="text-2xl font-bold mb-4">Interpretación y Definiciones</Typography>
+        <div className="mt-6"></div>
 
         {/* Definiciones */}
         <div>
@@ -39,7 +70,8 @@ const PrivacyPolicy: React.FC = () => {
 
       {/* Recopilación y Uso de Información Personal */}
       <div>
-        <Typography variant="h2" className="text-2xl font-bold mb-4">Recopilación y Uso de su Información Personal</Typography>
+        <Typography variant="h3" className="text-2xl font-bold mb-4">Recopilación y Uso de su Información Personal</Typography>
+        <div className="mt-6"></div>
 
         {/* Tipos de Datos Recopilados */}
         <div className="mb-4">
@@ -60,6 +92,8 @@ const PrivacyPolicy: React.FC = () => {
         </div>
       </div>
     </div>
+    )}
+   </MaxWidthWrapper>
   );
 }
 
