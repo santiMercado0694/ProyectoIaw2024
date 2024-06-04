@@ -1,32 +1,37 @@
-"use client";
+"use client"
 
 import React, { useEffect, useState } from 'react';
-import { useGlobalContext } from '@/context/StoreProvider';
-import MaxWidthWrapper from '@/components/MaxWidthWrapper';
+import { useGlobalContext, Product } from '@/context/StoreProvider';
+import MaxWidthWrapper from '@/components/layouts/MaxWidthWrapper';
 import ProductDetails from './ProductDetails';
+import { useParams } from 'next/navigation';
 
-const Product = () => {
+const Producto = () => {
     const { getProductById, loading } = useGlobalContext();
-    const [product, setProduct] = useState(null);
-    const productId = '6'; // ID del producto que quieres obtener
+    const [product, setProduct] = useState<Product | null>(null); // Estado del producto, puede ser Product o null
+    const { ProductId } = useParams<{ ProductId: string }>();
 
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const fetchedProduct = await getProductById(productId);
-                setProduct(fetchedProduct);
+                const fetchedProduct = await getProductById(ProductId);
+                setProduct(fetchedProduct); // Establece el producto obtenido
             } catch (error) {
                 console.error('Error al obtener el producto:', error);
             }
         };
 
-        fetchProduct();
-    }, [getProductById, productId]);
+        if (!product) { // Agregamos esta condición para cargar el producto solo una vez
+            fetchProduct();
+        }
+    }, [ProductId, getProductById, product]); // Agregamos product como dependencia
 
     return (
         <div>
             <MaxWidthWrapper>
-                {product ? (
+                {loading ? (
+                    <div>Cargando...</div>
+                ) : product ? (
                     <ProductDetails product={product} />
                 ) : (
                     <div>Producto no encontrado</div>
@@ -36,5 +41,4 @@ const Product = () => {
     );
 };
 
-export default Product;
-
+export default Producto;

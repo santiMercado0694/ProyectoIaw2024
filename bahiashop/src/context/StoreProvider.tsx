@@ -39,7 +39,7 @@ interface AppContextProps {
   setSearch: React.Dispatch<React.SetStateAction<string>>;
   getProductsFromAPI: () => Promise<void>;
   getProductsByCategory: (id: string) => Promise<void>;
-  getProductById: (id: string) => Promise<Product>;
+  getProductById: (id: string) => Promise<Product | null>;
   getProductByName: (name: string) => Promise<void>;
   getProductStock: (id: string) => Promise<number | null>;
   addProductCart: (user_id: string, product_id: string, quantity: number) => Promise<void>;
@@ -53,7 +53,7 @@ interface AppContextProps {
   clearCartByUserId: (user_id: string) => Promise<void>;
   getCategories: () => Promise<void>;
   getCategoriesNames: () => Promise<void>;
-  getCategoryById: (id: string) => Promise<void>;
+  getCategoryById: (id: string) => Promise<Category | null>;
   getCategoryByName: (name: string) => Promise<void>;
   createCategory: (name: string) => Promise<void>;
   updateCategory: (id: string, name: string) => Promise<void>;
@@ -123,7 +123,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       }
       const data = await response.json();
       setLoading(false);
-      return data;
+      return data[0];
     } catch (error) {
       console.error('Error:', error);
       setLoading(false);
@@ -344,8 +344,10 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
         throw new Error('Error al obtener la categoría por ID');
       }
       const data = await response.json();
+      return data[0];
     } catch (error) {
       console.error('Error:', error);
+      return null;
     }
   };
   
