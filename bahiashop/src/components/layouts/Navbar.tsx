@@ -1,21 +1,43 @@
-"use client";
+"use client"
 
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import Link from "next/link";
 import MaxWidthWrapper from "./MaxWidthWrapper";
-import { Icons } from "../Icons";
-import { buttonVariants } from "../ui/button";
+import {Icons} from "../Icons";
+import {buttonVariants} from "../ui/button";
 import Cart from "../cart/Cart";
-import { signOut, useSession } from "next-auth/react";
-import { useRouter } from 'next/navigation';
+import {signOut, useSession} from "next-auth/react";
+import {useRouter} from 'next/navigation';
 
 const Navbar = () => {
     const { data: session } = useSession();
     const router = useRouter();
+    
+    const [admin, setAdmin] = useState<boolean>(false);
+    
+    function parseJwt(token : string) {
+        if (!token) { return; }
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace('-', '+').replace('_', '/');
+        return JSON.parse(window.atob(base64));
+    }
+    
+    useEffect(() => {
+        if (!session || !session.user) {
+            setAdmin(false);
+            return;
+        }
+        
+        let rol = parseJwt(session.user.token)['rol'];
+        setAdmin(rol == 'admin');
+        
+    }, [session])
+    
 
     // Función para manejar el cierre de sesión
-    const handleSignOut = async () => {     
-        await signOut();
+    const handleSignOut = async () => {
+        await signOut({ redirect: false });
+        router.push('/');
     };
 
     return (
@@ -34,14 +56,27 @@ const Navbar = () => {
                             {/* Right side: session buttons and cart */}
                             <div className="flex items-center space-x-4 lg:space-x-6">
                                 {session ? (
-                                    <button 
+                                  <>
+                                      { admin ?
+                                        (
+                                          <Link href='/admin' className={buttonVariants({ variant: "ghost" })}>
+                                              ADMIN
+                                          </Link>
+                                        ) :
+                                        (
+                                          ''
+                                        )
+                                        
+                                      }
+                                      <button
                                         onClick={handleSignOut}
                                         className={buttonVariants({
                                             variant: "ghost",
                                         })}
-                                    >
-                                        CERRAR SESIÓN
-                                    </button>
+                                      >
+                                          CERRAR SESIÓN
+                                      </button>
+                                  </>
                                 ) : (
                                     <>
                                         <Link href='/SignIn' className={buttonVariants({ variant: "ghost" })}>

@@ -20,7 +20,7 @@ export interface Product {
 }
 
 
-interface User {
+export interface User {
   user_id: string;
   nombre: string;
   apellido: string;
@@ -53,12 +53,13 @@ interface AppContextProps {
   clearCartByUserId: (user_id: string) => Promise<void>;
   getCategories: () => Promise<void>;
   getCategoriesNames: () => Promise<void>;
-  getCategoryById: (id: string) => Promise<void>;
+  getCategoryById: (id: string) => Promise<Category>;
   getCategoryByName: (name: string) => Promise<void>;
   createCategory: (name: string) => Promise<void>;
   updateCategory: (id: string, name: string) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
   getUsers: () => Promise<void>;
+  getUserById: (id: string) => Promise<User>;
   getUserByName: (name: string) => Promise<void>;
   getUserByEmail: (email: string) => Promise<void>;
   addUser: (user: Omit<User, 'user_id' | 'rol'> & { password: string }) => Promise<void>;
@@ -123,7 +124,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       }
       const data = await response.json();
       setLoading(false);
-      return data;
+      return data[0];
     } catch (error) {
       console.error('Error:', error);
       setLoading(false);
@@ -344,6 +345,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
         throw new Error('Error al obtener la categoría por ID');
       }
       const data = await response.json();
+      return data[0];
     } catch (error) {
       console.error('Error:', error);
     }
@@ -424,6 +426,20 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       }
       const data = await response.json();
       setUsers(data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const getUserById = async (id: string) => {
+    try {
+      // TODO agregar esto a la API
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener usuario por nombre');
+      }
+      const data = await response.json();
+      return data[0];
     } catch (error) {
       console.error('Error:', error);
     }
@@ -515,6 +531,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
         throw new Error('Error al autenticar usuario');
       }
       const data = await response.json();
+      console.log(data)
       localStorage.setItem('token', data.token);
     } catch (error) {
       console.error('Error:', error);
@@ -560,6 +577,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       updateCategory,
       deleteCategory,
       getUsers,
+      getUserById,
       getUserByName,
       getUserByEmail,
       addUser,
