@@ -36,7 +36,7 @@ export default function Home() {
           />
         </div>
       ) : (
-        <div className="bg-gray-100">
+        <div>
             <ProductCard />
         </div>
       )}  
