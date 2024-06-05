@@ -28,9 +28,6 @@ const SearchBar = ({ setSearch, getProductsByCategory, setPaginationPage, actual
     getProductsByCategory(categoryId);
   };
   
-  
-  
-
   return (
     <div className="bg-gray-100 p-4">
       <div className="flex items-center justify-center space-x-4">

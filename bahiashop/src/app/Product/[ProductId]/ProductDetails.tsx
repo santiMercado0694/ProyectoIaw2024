@@ -18,6 +18,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             </div>
             <div>
                 <h1 className="text-2xl font-medium text-slate-700">{product.name}</h1>  
+                <div className="text-3xl text-justify">${product.price.toLocaleString()}</div>     
                 <Horizontal/>
                 <div><span className="font-semibold">DETALLE:</span></div>
                 <div className="text-justify">{product.details}</div>     

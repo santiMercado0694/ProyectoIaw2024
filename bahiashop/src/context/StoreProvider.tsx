@@ -523,13 +523,6 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  useEffect(() => {
-    getProductsFromAPI();
-    //getCartFromAPI();
-    getCategories();
-    getUsers();
-  }, []);
-
   return (
     <AppContext.Provider value={{
       loading,
