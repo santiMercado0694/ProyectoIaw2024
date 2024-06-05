@@ -433,10 +433,9 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const getUserById = async (id: string) => {
     try {
-      // TODO agregar esto a la API
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/id/${id}`);
       if (!response.ok) {
-        throw new Error('Error al obtener usuario por nombre');
+        throw new Error('Error al obtener usuario por id');
       }
       const data = await response.json();
       return data[0];

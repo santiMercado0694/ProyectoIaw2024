@@ -42,7 +42,7 @@ const ValuesPanel = (prop : Props) => {
         break;
     }
     
-  }, [prop.dataType, prop.itemId, data])
+  }, [prop.dataType, prop.itemId])
   
   function getFormData() : string[] {
     let array : string[] = [];
@@ -58,21 +58,24 @@ const ValuesPanel = (prop : Props) => {
   
   return (
     <div className="flex flex-col h-100 w-2/3 pt-10 bg-gray-100 rounded-md">
-      { values[data].map(value => (
+      { values[data].map(value => {
+        
+        return (
         <div key={`${value}_div`} className="flex flex-row justify-around mb-2 ">
           <h3 className="w-1/5 flex justify-end items-center">{value}</h3>
           
           <input
             className="w-2/3 rounded-md border-gray-400"
             id={value}
-            key={new Date().getTime()}
+            /* @ts-ignore*/
+            key={`${data}x${item?(item.id??item.user_id):'-1'}_${value}_input`}
             type="text"
             name={value}
             /* @ts-ignore*/
             defaultValue={item ? item[value] : ''}
           />
         </div>
-      ))}
+      )})}
       
       <div className="w-1/3 flex flex-row self-end mt-7 mr-20 justify-around">
         <Button variant="destructive" onClick={() => prop.onDelete()}> Eliminar </Button>

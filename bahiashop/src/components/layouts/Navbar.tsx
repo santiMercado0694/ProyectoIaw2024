@@ -8,6 +8,7 @@ import {buttonVariants} from "../ui/button";
 import Cart from "../cart/Cart";
 import {signOut, useSession} from "next-auth/react";
 import {useRouter} from 'next/navigation';
+import { isAdmin } from "@/lib/utils"
 
 const Navbar = () => {
     const { data: session } = useSession();
@@ -15,22 +16,9 @@ const Navbar = () => {
     
     const [admin, setAdmin] = useState<boolean>(false);
     
-    function parseJwt(token : string) {
-        if (!token) { return; }
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace('-', '+').replace('_', '/');
-        return JSON.parse(window.atob(base64));
-    }
     
     useEffect(() => {
-        if (!session || !session.user) {
-            setAdmin(false);
-            return;
-        }
-        
-        let rol = parseJwt(session.user.token)['rol'];
-        setAdmin(rol == 'admin');
-        
+        setAdmin(session?isAdmin(session):false);
     }, [session])
     
 

@@ -7,13 +7,18 @@ import {DataType, ValuesPanel} from "@/components/admin_panel/ValuesPanel";
 import {useGlobalContext} from "@/context/StoreProvider";
 import React, {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
+import {isAdmin} from "@/lib/utils";
+import {useSession} from "next-auth/react";
 
 const AdminPanel = () => {
   
-  const router = useRouter();
+  const { data: session } = useSession();
+  // const router = useRouter();
+  const [admin, setAdmin] = useState<boolean>(false);
   
   useEffect(() => {
     getProductsFromAPI();
+    setAdmin(session?isAdmin(session):false);
   })
   
   const [currentType, setcurrentType] = useState<DataType>(DataType.Product);
@@ -23,6 +28,11 @@ const AdminPanel = () => {
     deleteProduct, deleteCategory, deleteUser,
     createProduct, createCategory,
     getProductsFromAPI, getCategories, getUsers } = useGlobalContext();
+  
+  if(!admin) {
+    // TODO en el mejor de los casos devolver la pagina del 404
+    return undefined;
+  }
   
   function updateId(e: React.ChangeEvent<HTMLSelectElement>) {
     const newId = e.target.value;
@@ -68,23 +78,23 @@ const AdminPanel = () => {
     
     switch (currentType) {
       case DataType.Product:
-        // ['Nombre', 'Categoría', 'Detalle', 'Descripción', 'Stock', 'Precio', 'Imágen' ]
+        // ['name', 'category_id', 'details', 'description', 'stock', 'price', 'image_path' ]
         promise = updateProduct(id, {
           name: newValues[0],
-          details: newValues[1],
-          description: newValues[2],
+          details: newValues[2],
+          description: newValues[3],
           price: +newValues[5],
           stock: +newValues[4],
-          category_id: +newValues[3],
+          category_id: +newValues[1],
           image_path: newValues[6]
         });
         break;
       case DataType.Category:
-        // ['Nombre' ]
+        // ['nombre' ]
         promise = updateCategory(id, newValues[0]);
         break;
       case DataType.User:
-        // ['Nombre', 'Apellido', 'Email', 'Rol' ]
+        // ['nombre', 'apellido', 'email', 'rol' ]
         promise = updateUser({
           user_id: id,
           nombre: newValues[0],
@@ -113,14 +123,14 @@ const AdminPanel = () => {
     
     switch (currentType) {
       case DataType.Product:
-        // ['Nombre', 'Categoría', 'Detalle', 'Descripción', 'Stock', 'Precio', 'Imágen' ]
+        // ['name', 'category_id', 'details', 'description', 'stock', 'price', 'image_path' ]
         promise = createProduct({
           name: newValues[0],
-          details: newValues[1],
-          description: newValues[2],
+          details: newValues[2],
+          description: newValues[3],
           price: +newValues[5],
           stock: +newValues[4],
-          category_id: +newValues[3],
+          category_id: +newValues[1],
           image_path: newValues[6]
         });
         break;
