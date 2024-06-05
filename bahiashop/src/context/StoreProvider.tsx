@@ -59,6 +59,7 @@ interface AppContextProps {
   updateCategory: (id: string, name: string) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
   getUsers: () => Promise<void>;
+  getUserById: (id: string) => Promise<User>;
   getUserByName: (name: string) => Promise<void>;
   getUserByEmail: (email: string) => Promise<void>;
   addUser: (user: Omit<User, 'user_id' | 'rol'> & { password: string }) => Promise<void>;
@@ -431,6 +432,20 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const getUserById = async (id: string) => {
+    try {
+      // TODO agregar esto a la API
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener usuario por nombre');
+      }
+      const data = await response.json();
+      return data[0];
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   const getUserByName = async (name: string) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${name}`);
@@ -560,6 +575,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       updateCategory,
       deleteCategory,
       getUsers,
+      getUserById,
       getUserByName,
       getUserByEmail,
       addUser,

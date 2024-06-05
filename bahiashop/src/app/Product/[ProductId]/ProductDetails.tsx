@@ -1,6 +1,7 @@
 import React from 'react';
 import { Product } from '@/context/StoreProvider'; 
 import { FaShoppingCart } from 'react-icons/fa';
+import { MdAddShoppingCart } from 'react-icons/md';
 
 interface ProductDetailsProps {
     product: Product;
@@ -9,6 +10,14 @@ interface ProductDetailsProps {
 const Horizontal = () => {
     return <hr className="w-[30%] my-2" />
 }
+
+const handleAddToCart = (id: number) => {
+    console.log(`Agregando producto al carrito: ${id}`);
+  };
+
+  const handleBuyNow = (id: number) => {
+    console.log(`Comprando producto: ${id}`);
+  };
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
     return (
@@ -37,9 +46,17 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 <span className="font-semibold">CANTIDAD:</span>
                 <Horizontal/>
                 <button
-                  className="w-full flex items-center justify-center space-x-2 rounded-lg bg-cyan-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-cyan-800 focus:outline-none focus:ring-4 focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800"
+                  className="w-full flex items-center justify-center space-x-2 rounded-lg bg-red-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-300 mb-6"
+                  onClick={() => handleBuyNow(parseInt(product.id))}
                 >
-                  <FaShoppingCart /> 
+                  <FaShoppingCart style={{ fontSize: "1rem" }} /> 
+                  <span>Comprar ahora</span>
+                </button>
+                <button
+                  className="w-full flex items-center justify-center space-x-2 rounded-lg bg-cyan-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-cyan-800 focus:outline-none focus:ring-4 focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800 mt-2"
+                  onClick={() => handleAddToCart(parseInt(product.id))}
+                >
+                  <MdAddShoppingCart style={{ fontSize: "1.2rem" }} />
                   <span>Agregar al carrito</span>
                 </button>
             </div> 
