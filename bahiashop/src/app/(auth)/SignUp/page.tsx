@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -18,66 +18,72 @@ import { useGlobalContext } from '@/context/StoreProvider';
 function SignUp() {
   const router = useRouter();
   const { addUser } = useGlobalContext();
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = useState({
     nombre: '',
     apellido: '',
     email: '',
     contraseña: '',
   });
-  const [errors, setErrors] = React.useState({
-    nombre: false,
-    apellido: false,
-    email: false,
-    contraseña: false,
-    form: false, // Nuevo estado para el mensaje general
+  const [formErrors, setFormErrors] = useState({
+    nombre: '',
+    apellido: '',
+    email: '',
+    contraseña: '',
   });
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const { nombre, apellido, email, contraseña } = formData;
-
-    if (!nombre.trim() || !apellido.trim() || !email.trim() || !contraseña.trim()) {
-      setErrors((prev) => ({ ...prev, form: true })); // Mostrar el mensaje general
-      setErrors((prev) => ({ ...prev, nombre: !nombre.trim(), apellido: !apellido.trim(), email: !email.trim(), contraseña: !contraseña.trim() }));
-      return;
+    let valid = true;
+    const newErrors = { ...formErrors };
+  
+    // Validación de campos
+    if (!formData.nombre.trim()) {
+      newErrors.nombre = 'Por favor, ingrese su nombre.';
+      valid = false;
     }
-
-    // Validación del email
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setErrors((prev) => ({ ...prev, email: true }));
-      return;
+    if (!formData.apellido.trim()) {
+      newErrors.apellido = 'Por favor, ingrese su apellido.';
+      valid = false;
     }
-
-    // Validación de la contraseña
-    if (contraseña.length < 6) {
-      setErrors((prev) => ({ ...prev, contraseña: true }));
-      return;
+    if (!formData.email.trim()) {
+      newErrors.email = 'Por favor, ingrese su correo electrónico.';
+      valid = false;
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      newErrors.email = 'Ingrese un correo electrónico válido.';
+      valid = false;
     }
-
-    setErrors((prev) => ({ ...prev, form: false, nombre: false, apellido: false, email: false, contraseña: false }));
-
-    try {
-      // Cambia la clave 'contraseña' a 'password' en el objeto newUser
-      const newUser = {
-        nombre,
-        apellido,
-        email,
-        password: contraseña, // Cambio de 'contraseña' a 'password'
-      };
-
-      await addUser(newUser);
-      alert('Usuario registrado con éxito');
-      router.push('/SignIn');
-      router.refresh();
-    } catch (error) {
-      console.error('Error al registrar el usuario:', error);
-      alert('Error al registrar el usuario');
+    if (!formData.contraseña.trim()) {
+      newErrors.contraseña = 'Por favor, ingrese su contraseña.';
+      valid = false;
+    } else if (formData.contraseña.length < 6) {
+      newErrors.contraseña = 'La contraseña debe tener al menos 6 caracteres.';
+      valid = false;
+    }
+  
+    if (valid) {
+      // Agregar la propiedad password al objeto formData
+      const userWithPassword = { ...formData, password: formData.contraseña };
+  
+      try {
+        await addUser(userWithPassword); // Usar el objeto actualizado con la propiedad password
+        setFormSubmitted(true);
+        setTimeout(() => {
+          router.push('/SignIn');
+          router.refresh();
+        }, 5000);
+      } catch (error) {
+        console.error('Error al registrar el usuario:', error);
+        alert('Error al registrar el usuario');
+      }
+    } else {
+      setFormErrors(newErrors);
     }
   };
 
@@ -110,8 +116,8 @@ function SignUp() {
                   id="nombre"
                   label="Nombre"
                   autoFocus
-                  error={errors.nombre}
-                  helperText={errors.nombre && 'Por favor, ingresa tu nombre'}
+                  error={Boolean(formErrors.nombre)}
+                  helperText={formErrors.nombre}
                   value={formData.nombre}
                   onChange={handleChange}
                 />
@@ -124,8 +130,8 @@ function SignUp() {
                   label="Apellido"
                   name="apellido"
                   autoComplete="family-name"
-                  error={errors.apellido}
-                  helperText={errors.apellido && 'Por favor, ingresa tu apellido'}
+                  error={Boolean(formErrors.apellido)}
+                  helperText={formErrors.apellido}
                   value={formData.apellido}
                   onChange={handleChange}
                 />
@@ -138,8 +144,8 @@ function SignUp() {
                   label="Email"
                   name="email"
                   autoComplete="email"
-                  error={errors.email}
-                  helperText={errors.email && 'Por favor, ingresa un correo electrónico válido'}
+                  error={Boolean(formErrors.email)}
+                  helperText={formErrors.email}
                   value={formData.email}
                   onChange={handleChange}
                 />
@@ -153,8 +159,8 @@ function SignUp() {
                   type="password"
                   id="contraseña"
                   autoComplete="new-password"
-                  error={errors.contraseña}
-                  helperText={errors.contraseña && 'La contraseña debe tener al menos 6 caracteres'}
+                  error={Boolean(formErrors.contraseña)}
+                  helperText={formErrors.contraseña}
                   value={formData.contraseña}
                   onChange={handleChange}
                 />
@@ -183,3 +189,4 @@ function SignUp() {
 }
 
 export default SignUp;
+

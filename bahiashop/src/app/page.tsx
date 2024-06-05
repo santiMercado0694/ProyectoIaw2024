@@ -16,30 +16,9 @@ export default function Home() {
     getCategories();
   }, []);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoad(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <MaxWidthWrapper>
-      {loading ? (
-        <div className="flex justify-center items-center h-screen">
-          <Loader
-            type="Puff"
-            color="#00BFFF"
-            height={100}
-            width={100}
-            timeout={1000} 
-          />
-        </div>
-      ) : (
-        <div>
-            <ProductCard />
-        </div>
-      )}  
+        <ProductCard />
     </MaxWidthWrapper>
   );
 }
