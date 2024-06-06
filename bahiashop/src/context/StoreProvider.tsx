@@ -34,7 +34,7 @@ export interface Cart {
 }
 
 
-interface User {
+export interface User {
   user_id: string;
   nombre: string;
   apellido: string;
@@ -69,6 +69,7 @@ interface AppContextProps {
   clearCartByUserId: (user_id: string) => Promise<void>;
   getCategories: () => Promise<void>;
   getCategoriesNames: () => Promise<void>;
+  getCategoryById: (id: string) => Promise<Category>;
   getCategoryById: (id: string) => Promise<Category | null>;
   getCategoryByName: (name: string) => Promise<void>;
   createCategory: (name: string) => Promise<void>;
@@ -481,10 +482,9 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const getUserById = async (id: string) => {
     try {
-      // TODO agregar esto a la API
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/id/${id}`);
       if (!response.ok) {
-        throw new Error('Error al obtener usuario por nombre');
+        throw new Error('Error al obtener usuario por id');
       }
       const data = await response.json();
       return data[0];
@@ -579,6 +579,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
         throw new Error('Error al autenticar usuario');
       }
       const data = await response.json();
+      console.log(data)
       localStorage.setItem('token', data.token);
     } catch (error) {
       console.error('Error:', error);

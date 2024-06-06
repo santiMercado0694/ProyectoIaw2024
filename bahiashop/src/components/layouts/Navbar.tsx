@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import MaxWidthWrapper from "./MaxWidthWrapper";
 import { Icons } from "../Icons";
@@ -8,14 +8,22 @@ import { buttonVariants } from "../ui/button";
 import Cart from "../cart/Cart";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
+import { isAdmin } from "@/lib/utils"
 
 const Navbar = () => {
     const { data: session } = useSession();
     const router = useRouter();
 
+    const [admin, setAdmin] = useState<boolean>(false);
+
+    useEffect(() => {
+        setAdmin(session ? isAdmin(session) : false);
+    }, [session]);
+
     // Función para manejar el cierre de sesión
-    const handleSignOut = async () => {     
-        await signOut();
+    const handleSignOut = async () => {
+        await signOut({ redirect: false });
+        router.push('/');
     };
 
     return (
@@ -34,12 +42,17 @@ const Navbar = () => {
                             <div className="flex items-center space-x-4 lg:space-x-6">
                                 {session ? (
                                     <>
-                                        <strong className="text-gray-700 text-sm">{session.user.nombre.toUpperCase()} {session.user.apellido.toUpperCase()}</strong>
-                                        <button 
+                                        {admin && (
+                                            <Link href='/admin' className={buttonVariants({ variant: "ghost" })}>
+                                                ADMIN
+                                            </Link>
+                                        )}
+                                        <strong className="text-gray-700 text-sm">
+                                            {session.user.nombre.toUpperCase()} {session.user.apellido.toUpperCase()}
+                                        </strong>
+                                        <button
                                             onClick={handleSignOut}
-                                            className={buttonVariants({
-                                                variant: "ghost",
-                                            })}
+                                            className={buttonVariants({ variant: "ghost" })}
                                         >
                                             CERRAR SESIÓN
                                         </button>
@@ -68,5 +81,6 @@ const Navbar = () => {
 }
 
 export default Navbar;
+
 
 
