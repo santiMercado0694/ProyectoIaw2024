@@ -7,6 +7,8 @@ import { useGlobalContext, Product } from '@/context/StoreProvider';
 import MaxWidthWrapper from '@/components/layouts/MaxWidthWrapper';
 import ProductDetails from './ProductDetails';
 import { useParams } from 'next/navigation';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Producto = () => {
   const { getProductById, loading, addProductCart } = useGlobalContext();
@@ -44,7 +46,10 @@ const Producto = () => {
           <Loader type="Puff" color="#00BFFF" height={100} width={100} timeout={1000} />
         </div>
       ) : product ? (
-        <ProductDetails product={product} addProductCart={addProductCart} />
+        <div>
+          <ProductDetails product={product} addProductCart={addProductCart} />
+          <ToastContainer />
+        </div>
       ) : (
         <div> </div>
       )}
