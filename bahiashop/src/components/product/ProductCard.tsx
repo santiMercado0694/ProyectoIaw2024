@@ -39,7 +39,8 @@ export function ProductCard() {
     setCurrentPage(pageNumber);
   };
 
-  const handleAddToCart = (id_producto: string, producto_name: string) => {
+  const handleAddToCart = (event: React.MouseEvent<HTMLButtonElement>, id_producto: string, producto_name: string) => {
+    event.stopPropagation();
     if (session && session.user && session.user.user_id) {
       addProductCart(session.user.user_id, id_producto, 1);
       toast.success(`Se agrego ${producto_name} al carrito`, {
@@ -55,7 +56,8 @@ export function ProductCard() {
     }
   };
 
-  const handleBuyNow = (id: number) => {
+  const handleBuyNow = (event: React.MouseEvent<HTMLButtonElement>, id: number) => {
+    event.stopPropagation();
     if (session && session.user && session.user.user_id) {
       router.push("/Payment");
       console.log(`Comprando producto: ${id}`);
@@ -78,9 +80,10 @@ export function ProductCard() {
               key={producto.id}
               className="max-w-sm transform transition duration-300 hover:scale-105 hover:shadow-lg"
             >
-              <div onClick={() => handleClick(producto)}>
+              <div>
                 <h5 
                   className="text-xl font-semibold tracking-tight text-center text-gray-900 dark:text-white transition duration-300 transform hover:scale-125 cursor-pointer"
+                  onClick={() => handleClick(producto)}
                 >
                   {producto.name}
                 </h5>
@@ -108,14 +111,14 @@ export function ProductCard() {
                     <>
                       <button
                         className="w-full flex items-center justify-center space-x-2 rounded-lg bg-red-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-300"
-                        onClick={() => handleBuyNow(parseInt(producto.id))}
+                        onClick={(event) => handleBuyNow(event, parseInt(producto.id))}
                       >
                         <FaShoppingCart style={{ fontSize: "1rem" }} /> 
                         <span>Comprar ahora</span>
                       </button>
                       <button
                         className="w-full flex items-center justify-center space-x-2 rounded-lg bg-cyan-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-cyan-800 focus:outline-none focus:ring-4 focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800"
-                        onClick={() => handleAddToCart(producto.id, producto.name)}
+                        onClick={(event) => handleAddToCart(event, producto.id, producto.name)}
                       >
                         <MdAddShoppingCart style={{ fontSize: "1.2rem" }} />
                         <span>Agregar al carrito</span>
