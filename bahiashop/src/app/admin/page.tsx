@@ -9,6 +9,8 @@ import React, {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import {isAdmin} from "@/lib/utils";
 import {useSession} from "next-auth/react";
+import NotFound from "@/app/not-found";
+import styles from "@/styles/styles.module.css"
 
 const AdminPanel = () => {
   
@@ -30,8 +32,7 @@ const AdminPanel = () => {
     getProductsFromAPI, getCategories, getUsers } = useGlobalContext();
   
   if(!admin) {
-    // TODO en el mejor de los casos devolver la pagina del 404
-    return undefined;
+    return <NotFound />;
   }
   
   function updateId(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -157,7 +158,7 @@ const AdminPanel = () => {
   
   
   return (
-    <MaxWidthWrapper className="flex flex-row h-screen justify-around mt-5 p-4 ">
+    <MaxWidthWrapper className={`${styles.vh80} flex flex-row justify-around mt-5 p-4 `}>
       
       <KeysPanel onUpdateKey={updateKey} onUpdateId={updateId} />
       
