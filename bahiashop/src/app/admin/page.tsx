@@ -11,6 +11,7 @@ import {isAdmin} from "@/lib/utils";
 import {useSession} from "next-auth/react";
 import NotFound from "@/app/not-found";
 import styles from "@/styles/styles.module.css"
+import {ToastContainer} from "react-toastify";
 
 const AdminPanel = () => {
   
@@ -20,15 +21,18 @@ const AdminPanel = () => {
   const [currentType, setcurrentType] = useState<DataType>(DataType.Product);
   const [id, setId] = useState<string>('');
   const {
+    loading,
     updateProduct, updateCategory, updateUser,
     deleteProduct, deleteCategory, deleteUser,
     createProduct, createCategory,
     getProductsFromAPI, getCategories, getUsers } = useGlobalContext();
   
-  useEffect(() => {
-    getProductsFromAPI();
+  useEffect( () => {
+    if (loading) return;
+    
+    reloadLists();
     setAdmin(session?isAdmin(session):false);
-  })
+  }, [loading])
   
   
   
@@ -36,8 +40,13 @@ const AdminPanel = () => {
     return <NotFound />;
   }
   
-  function updateId(e: React.ChangeEvent<HTMLSelectElement>) {
-    const newId = e.target.value;
+  function reloadLists() {
+    getProductsFromAPI();
+    getCategories();
+    getUsers();
+  }
+  
+  function updateId(newId:string) {
     setId(newId);
   }
   
@@ -64,14 +73,9 @@ const AdminPanel = () => {
     
     promise
       .then( (val) => {
-        getProductsFromAPI();
-        getCategories();
-        getUsers();
+        reloadLists();
         }
-      ).catch( (err) => {
-      // on error
-    });
-    
+    );
   }
   
   function updateItem(newValues:string[]) {
@@ -109,14 +113,9 @@ const AdminPanel = () => {
     
     promise
       .then( (val) => {
-        getProductsFromAPI();
-        getCategories();
-        getUsers();
+        reloadLists();
       }
-    ).catch( (err) => {
-        // on error
-    });
-    
+    );
   }
   
   function createItem(newValues:string[]) {
@@ -146,20 +145,16 @@ const AdminPanel = () => {
     
     promise
       .then( (val) => {
-        getProductsFromAPI();
-        getCategories();
-        getUsers();
+          reloadLists();
       }
-      ).catch( (err) => {
-      // on error
-    });
-    
+    );
     
   }
   
   
   return (
     <MaxWidthWrapper className={`${styles.vh80} flex flex-row justify-around mt-5 p-4 `}>
+      <ToastContainer />
       
       <KeysPanel onUpdateKey={updateKey} onUpdateId={updateId} />
       
