@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { isAdmin } from "@/lib/utils"
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Image from 'next/image';
 
 const Navbar = () => {
     const { data: session } = useSession();
@@ -37,7 +38,7 @@ const Navbar = () => {
                             {/* Logo */}
                             <div className="ml-4 flex lg:ml-0">
                                 <Link href="/">
-                                    <Icons.logo className="h-14 w-17" />
+                                    <Image src="/Logo.webp" alt="Logo" width={70} height={50} />
                                 </Link>
                             </div>
 
