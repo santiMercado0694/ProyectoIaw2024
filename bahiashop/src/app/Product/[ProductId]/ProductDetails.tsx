@@ -22,7 +22,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, addProductCart
 
     const handleAddToCart = (id_producto: string, producto_name: string) => {
         if (session && session.user && session.user.user_id) {
-          addProductCart(session.user.user_id, id_producto, 1);
+          addProductCart(session.user.user_id, id_producto, quantity);
           toast.success(`Se agrego ${producto_name} al carrito`, {
             position: 'top-right',
             style: {
@@ -38,7 +38,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, addProductCart
 
     const handleBuyNow = (id: number) => {
         if (session && session.user && session.user.user_id) {
-            router.push("/Payment");
+            router.push("/payment");
             console.log(`Comprando producto: ${id}`);
         } else {
             router.push("/SignIn");

@@ -59,7 +59,7 @@ export function ProductCard() {
   const handleBuyNow = (event: React.MouseEvent<HTMLButtonElement>, id: number) => {
     event.stopPropagation();
     if (session && session.user && session.user.user_id) {
-      router.push("/Payment");
+      router.push("/payment");
       console.log(`Comprando producto: ${id}`);
     } else {
       router.push("/SignIn");
