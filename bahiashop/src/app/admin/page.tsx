@@ -17,12 +17,6 @@ const AdminPanel = () => {
   const { data: session } = useSession();
   // const router = useRouter();
   const [admin, setAdmin] = useState<boolean>(false);
-  
-  useEffect(() => {
-    getProductsFromAPI();
-    setAdmin(session?isAdmin(session):false);
-  })
-  
   const [currentType, setcurrentType] = useState<DataType>(DataType.Product);
   const [id, setId] = useState<string>('');
   const {
@@ -30,6 +24,13 @@ const AdminPanel = () => {
     deleteProduct, deleteCategory, deleteUser,
     createProduct, createCategory,
     getProductsFromAPI, getCategories, getUsers } = useGlobalContext();
+  
+  useEffect(() => {
+    getProductsFromAPI();
+    setAdmin(session?isAdmin(session):false);
+  })
+  
+  
   
   if(!admin) {
     return <NotFound />;
