@@ -1,5 +1,7 @@
+import Image from 'next/image';
+
 export const Icons = {
     logo: ({ ...rest }) => (
-        <img src="/Logo.webp" alt="Logo" {...rest} />
+        <Image src="/Logo.webp" alt="Logo" width={70} height={50} {...rest} />
     ),
 };

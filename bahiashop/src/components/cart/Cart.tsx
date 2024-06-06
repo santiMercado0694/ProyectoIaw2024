@@ -11,7 +11,7 @@ import { Cart, useGlobalContext } from '@/context/StoreProvider';
 import CartItem from '@/components/cart/CartItem';
 import { useSession } from 'next-auth/react';
 
-const cart = () => {
+const CartComponent = () => {
   const { cart, getCartByUserId } = useGlobalContext();
   const { data: session } = useSession();
 
@@ -19,7 +19,7 @@ const cart = () => {
     if (session && session.user && session.user.user_id) {
       getCartByUserId(session.user.user_id);
     }
-  }, [session]); 
+  }, [session, getCartByUserId]); 
 
   let sum = 0;
   cart.forEach((p) => (sum += p.price * p.quantity));
@@ -88,6 +88,7 @@ const cart = () => {
   );
 };
 
-export default cart;
+export default CartComponent;
+
 
 

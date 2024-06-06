@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from "next-auth/react";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Image from 'next/image'
 
 interface ProductDetailsProps {
     product: Product;
@@ -59,7 +60,12 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, addProductCart
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
-                <img src={`/products/${product.image_path}`} />
+            <Image
+                src={`/products/${product.image_path}`}
+                alt={`${product.name}`}
+                width={500} 
+                height={500} 
+            />
             </div>
             <div>
                 <h1 className="text-2xl font-medium text-slate-700">{product.name}</h1>  
