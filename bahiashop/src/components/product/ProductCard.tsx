@@ -7,6 +7,8 @@ import { FaShoppingCart } from 'react-icons/fa';
 import { MdAddShoppingCart } from "react-icons/md";
 import { useRouter } from 'next/navigation';
 import { useSession } from "next-auth/react";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export function ProductCard() {
   const { productos, setSearch, search, getProductsByCategory, addProductCart } = useGlobalContext();
@@ -36,9 +38,16 @@ export function ProductCard() {
     setCurrentPage(pageNumber);
   };
 
-  const handleAddToCart = (id_producto: string) => {
+  const handleAddToCart = (id_producto: string, producto_name: string) => {
     if (session && session.user && session.user.user_id) {
       addProductCart(session.user.user_id, id_producto, 1);
+      toast.success(`Se agrego ${producto_name} al carrito`, {
+        position: 'top-right',
+        style: {
+          width: '300px',
+          fontSize: '1rem', 
+        },
+      });
       console.log("Agregando producto al carrito");
     } else {
       router.push("/SignIn");
@@ -103,7 +112,7 @@ export function ProductCard() {
                     </button>
                     <button
                       className="w-full flex items-center justify-center space-x-2 rounded-lg bg-cyan-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-cyan-800 focus:outline-none focus:ring-4 focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800"
-                      onClick={() => handleAddToCart(producto.id)}
+                      onClick={() => handleAddToCart(producto.id, producto.name)}
                     >
                       <MdAddShoppingCart style={{ fontSize: "1.2rem" }} />
                       <span>Agregar al carrito</span>
