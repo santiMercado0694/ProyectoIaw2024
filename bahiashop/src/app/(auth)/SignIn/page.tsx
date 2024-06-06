@@ -5,8 +5,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
@@ -15,41 +13,71 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useRouter } from 'next/navigation';
-import { FormEvent } from 'react';
 import { signIn } from 'next-auth/react';
 
-function Copyright(props: any) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Bahia Shop
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 const backgroundImage = '/Signin.webp';
 
 export default function SignInSide() {
   const router = useRouter();
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const response = await signIn('credentials', {
-      email: formData.get('email'),
-      password: formData.get('password'),
-      redirect: false,
-    });
+  const [formErrors, setFormErrors] = React.useState({
+    email: '',
+    password: '',
+    credentialsError: '', // Nuevo campo de error para credenciales incorrectas
+  });
 
-    console.log({ response });
-    if (!response?.error) {
-      router.push('/');
-      router.refresh();
+  const initialFormData = {
+    email: '',
+    password: '',
+  };
+  const [formData, setFormData] = React.useState(initialFormData);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: value.trim() ? '' : `Por favor, ingrese su ${name}.`,
+      credentialsError: '', // Limpiar el error de credenciales al cambiar cualquier campo
+    }));
+    setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // Validación de campos
+    let valid = true;
+    const newErrors = { email: '', password: '', credentialsError: '' };
+    if (!formData.email) {
+      newErrors.email = 'Por favor, ingrese su correo electrónico.';
+      valid = false;
+    }
+    if (!formData.password) {
+      newErrors.password = 'Por favor, ingrese su contraseña.';
+      valid = false;
+    }
+
+    if (valid) {
+      const response = await signIn('credentials', {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+      });
+
+      console.log({ response });
+      if (!response?.error) {
+        router.push('/');
+        router.refresh();
+      } else {
+        // Marcar error de credenciales incorrectas
+        setFormErrors((prevErrors) => ({
+          ...prevErrors,
+          credentialsError: 'Nombre de usuario o contraseña incorrectos.',
+        }));
+        setFormData(initialFormData); // Vaciar los campos del formulario
+      }
+    } else {
+      setFormErrors(newErrors);
     }
   };
 
@@ -84,7 +112,7 @@ export default function SignInSide() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Iniciar Sesion
+              Iniciar Sesión
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
               <TextField
@@ -96,20 +124,24 @@ export default function SignInSide() {
                 name="email"
                 autoComplete="email"
                 autoFocus
+                value={formData.email}
+                onChange={handleChange}
+                error={Boolean(formErrors.email)}
+                helperText={formErrors.email}
               />
               <TextField
                 margin="normal"
                 required
                 fullWidth
                 name="password"
-                label="password"
+                label="Contraseña"
                 type="password"
                 id="password"
                 autoComplete="current-password"
-              />
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Recordarme"
+                value={formData.password}
+                onChange={handleChange}
+                error={Boolean(formErrors.password)}
+                helperText={formErrors.password}
               />
               <Button
                 type="submit"
@@ -117,16 +149,20 @@ export default function SignInSide() {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
               >
-                Iniciar Sesion
+                Iniciar Sesión
               </Button>
+              {formErrors.credentialsError && (
+                <Typography variant="body2" color="error" align="center">
+                  {formErrors.credentialsError}
+                </Typography>
+              )}
               <Grid container>
-                <Grid item>
+                <Grid item sx={{ marginTop: 2 }}>
                   <Link href="/SignUp" variant="body2">
-                    {"No te has registrado? Registrate aqui"}
+                    {"¿No tienes una cuenta? Regístrate aquí"}
                   </Link>
                 </Grid>
               </Grid>
-              <Copyright sx={{ mt: 5 }} />
             </Box>
           </Box>
         </Grid>

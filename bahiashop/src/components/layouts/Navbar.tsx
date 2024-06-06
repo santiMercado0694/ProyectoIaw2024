@@ -1,26 +1,24 @@
 "use client"
 
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import MaxWidthWrapper from "./MaxWidthWrapper";
-import {Icons} from "../Icons";
-import {buttonVariants} from "../ui/button";
+import { Icons } from "../Icons";
+import { buttonVariants } from "../ui/button";
 import Cart from "../cart/Cart";
-import {signOut, useSession} from "next-auth/react";
-import {useRouter} from 'next/navigation';
+import { signOut, useSession } from "next-auth/react";
+import { useRouter } from 'next/navigation';
 import { isAdmin } from "@/lib/utils"
 
 const Navbar = () => {
     const { data: session } = useSession();
     const router = useRouter();
-    
+
     const [admin, setAdmin] = useState<boolean>(false);
-    
-    
+
     useEffect(() => {
-        setAdmin(session?isAdmin(session):false);
-    }, [session])
-    
+        setAdmin(session ? isAdmin(session) : false);
+    }, [session]);
 
     // Función para manejar el cierre de sesión
     const handleSignOut = async () => {
@@ -41,30 +39,27 @@ const Navbar = () => {
                                 </Link>
                             </div>
 
-                            {/* Right side: session buttons and cart */}
                             <div className="flex items-center space-x-4 lg:space-x-6">
                                 {session ? (
-                                  <>
-                                      { admin ?
-                                        (
-                                          <Link href='/admin' className={buttonVariants({ variant: "ghost" })}>
-                                              ADMIN
-                                          </Link>
-                                        ) :
-                                        (
-                                          ''
-                                        )
-                                        
-                                      }
-                                      <button
-                                        onClick={handleSignOut}
-                                        className={buttonVariants({
-                                            variant: "ghost",
-                                        })}
-                                      >
-                                          CERRAR SESIÓN
-                                      </button>
-                                  </>
+                                    <>
+                                        {admin && (
+                                            <Link href='/admin' className={buttonVariants({ variant: "ghost" })}>
+                                                ADMIN
+                                            </Link>
+                                        )}
+                                        <strong className="text-gray-700 text-sm">
+                                            {session.user.nombre.toUpperCase()} {session.user.apellido.toUpperCase()}
+                                        </strong>
+                                        <button
+                                            onClick={handleSignOut}
+                                            className={buttonVariants({ variant: "ghost" })}
+                                        >
+                                            CERRAR SESIÓN
+                                        </button>
+                                        <div className="ml-4 flow-root lg:ml-6">
+                                            <Cart />
+                                        </div>
+                                    </>
                                 ) : (
                                     <>
                                         <Link href='/SignIn' className={buttonVariants({ variant: "ghost" })}>
@@ -76,9 +71,6 @@ const Navbar = () => {
                                         </Link>
                                     </>
                                 )}
-                                <div className="ml-4 flow-root lg:ml-6">
-                                    <Cart />
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -89,3 +81,6 @@ const Navbar = () => {
 }
 
 export default Navbar;
+
+
+

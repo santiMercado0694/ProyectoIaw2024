@@ -1,6 +1,5 @@
 'use client'
 
-
 import MaxWidthWrapper from "@/components/layouts/MaxWidthWrapper";
 
 const Payment = () => {
@@ -9,7 +8,7 @@ const Payment = () => {
     <MaxWidthWrapper>
       
       <h3>
-        ESPACIO PARA INTEGRAR LA API DE MP
+        ACA SE VA A IMPLEMENTAR EL METODO DE PAGO
       </h3>
       
     </MaxWidthWrapper>

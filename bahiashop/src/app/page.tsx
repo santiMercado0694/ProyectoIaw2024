@@ -2,32 +2,21 @@
 
 import MaxWidthWrapper from "@/components/layouts/MaxWidthWrapper";
 import { ProductCard } from "@/components/product/ProductCard";
-import SearchBar from "@/components/layouts/SearchBar";
-import Link from "next/link";
 import { useGlobalContext } from "@/context/StoreProvider";
-import { useState } from "react";
+import { useEffect } from "react";
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css"; 
 
 export default function Home() {
-  const { setSearch, getProductsByCategory } = useGlobalContext();
-  const [currentPage, setCurrentPage] = useState(1);
+  const { getProductsFromAPI, getCategories } = useGlobalContext();
 
-  const setPaginationPage = (page: number) => {
-    setCurrentPage(page);
-  };
+  useEffect(() => {
+    getProductsFromAPI();
+    getCategories();
+  }, []);
 
   return (
-    <>
-      <MaxWidthWrapper>
-        <SearchBar
-          setSearch={setSearch}
-          getProductsByCategory={getProductsByCategory}
-          setPaginationPage={setPaginationPage}
-          actualPage={currentPage}
-        />
-        <div className="bg-gray-100">
-          <ProductCard />
-        </div>
-      </MaxWidthWrapper>
-    </>
+    <MaxWidthWrapper>
+        <ProductCard />
+    </MaxWidthWrapper>
   );
 }

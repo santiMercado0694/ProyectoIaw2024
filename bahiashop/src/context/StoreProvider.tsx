@@ -8,6 +8,11 @@ export interface Category {
   nombre: string;
 }
 
+export interface CartUser {
+  cart_id: string;
+  user_id: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -16,6 +21,15 @@ export interface Product {
   price: number;
   stock: number;
   category_id: number;
+  image_path: string;
+}
+
+export interface Cart {
+  cart_item_id: string;
+  cart_id: string;
+  name: string;
+  price: number;
+  quantity: number;
   image_path: string;
 }
 
@@ -31,7 +45,7 @@ export interface User {
 interface AppContextProps {
   loading: boolean;
   productos: Product[];
-  cart: Product[];
+  cart: Cart[];
   categories: Category[];
   search: string;
   users: User[];
@@ -39,7 +53,7 @@ interface AppContextProps {
   setSearch: React.Dispatch<React.SetStateAction<string>>;
   getProductsFromAPI: () => Promise<void>;
   getProductsByCategory: (id: string) => Promise<void>;
-  getProductById: (id: string) => Promise<Product>;
+  getProductById: (id: string) => Promise<Product | null>;
   getProductByName: (name: string) => Promise<void>;
   getProductStock: (id: string) => Promise<number | null>;
   addProductCart: (user_id: string, product_id: string, quantity: number) => Promise<void>;
@@ -47,13 +61,16 @@ interface AppContextProps {
   createProduct: (product: Omit<Product, 'id'>) => Promise<void>;
   updateProduct: (id: string, product: Omit<Product, 'id'>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
+  getCartFromCarts: (user_id: string) => Promise<CartUser | null>;
   getCartByUserId: (user_id: string) => Promise<void>;
+  getCartItemById: (cart_item_id: string) => Promise<Cart | null>;
   updateCartItemQuantity: (user_id: string, cart_item_id: string, quantity: number) => Promise<void>;
   removeProductFromCart: (user_id: string, cart_item_id: string) => Promise<void>;
   clearCartByUserId: (user_id: string) => Promise<void>;
   getCategories: () => Promise<void>;
   getCategoriesNames: () => Promise<void>;
   getCategoryById: (id: string) => Promise<Category>;
+  getCategoryById: (id: string) => Promise<Category | null>;
   getCategoryByName: (name: string) => Promise<void>;
   createCategory: (name: string) => Promise<void>;
   updateCategory: (id: string, name: string) => Promise<void>;
@@ -75,7 +92,7 @@ const AppContext = React.createContext<AppContextProps | undefined>(undefined);
 const AppProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [productos, setProductos] = useState<Product[]>([]);
-  const [cart, setCart] = useState<Product[]>([]);
+  const [cart, setCart] = useState<Cart[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
@@ -177,7 +194,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       if (!response.ok) {
         throw new Error('Error al actualizar la cantidad del producto');
       }
-      //await getCartFromAPI();
+      await getCartByUserId(user_id);
     } catch (error) {
       console.error('Error:', error);
     }
@@ -256,6 +273,23 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const getCartFromCarts = async (user_id: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/carts/${user_id}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener el cart por ID');
+      }
+      const data = await response.json();
+      setLoading(false);
+      return data[0];
+    } catch (error) {
+      console.error('Error:', error);
+      setLoading(false);
+      return null;
+    }
+  };
+
   const getCartByUserId = async (user_id: string) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/${user_id}`);
@@ -266,6 +300,20 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       setCart(data);
     } catch (error) {
       console.error('Error:', error);
+    }
+  };
+
+  const getCartItemById = async (cart_item_id: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/item/${cart_item_id}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener el producto por ID');
+      }
+      const data = await response.json();
+      return data[0];
+    } catch (error) {
+      console.error('Error:', error);
+      return null;
     }
   };
   
@@ -348,6 +396,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       return data[0];
     } catch (error) {
       console.error('Error:', error);
+      return null;
     }
   };
   
@@ -539,9 +588,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     getProductsFromAPI();
-    //getCartFromAPI();
     getCategories();
-    getUsers();
   }, []);
 
   return (
@@ -560,10 +607,12 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       getProductByName,
       getProductStock,
       addProductCart,
+      getCartItemById,
       updateProductStock,
       createProduct,
       updateProduct,
       deleteProduct,
+      getCartFromCarts,
       getCartByUserId,
       updateCartItemQuantity,
       removeProductFromCart,
