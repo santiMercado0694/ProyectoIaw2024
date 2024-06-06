@@ -9,6 +9,8 @@ import Cart from "../cart/Cart";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
 import { isAdmin } from "@/lib/utils"
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Navbar = () => {
     const { data: session } = useSession();
@@ -58,6 +60,7 @@ const Navbar = () => {
                                         </button>
                                         <div className="ml-4 flow-root lg:ml-6">
                                             <Cart />
+                                            <ToastContainer />
                                         </div>
                                     </>
                                 ) : (

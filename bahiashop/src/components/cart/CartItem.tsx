@@ -8,6 +8,8 @@ import Box from '@mui/material/Box';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import { useGlobalContext } from '@/context/StoreProvider';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface CartItemProps {
   product: Cart;
@@ -19,7 +21,14 @@ const CartItem: React.FC<CartItemProps> = ({ product, user_id }) => {
 
   const handleRemove = () => {
     if (user_id) {
-      removeProductFromCart(user_id, product.cart_item_id); // Llama al método con el ID del producto
+      removeProductFromCart(user_id, product.cart_item_id);
+      toast.success(`Se elimino ${product.name} del carrito`, {
+        position: 'top-left',
+        style: {
+          width: '300px',
+          fontSize: '1rem', 
+        },
+      });
     }
   };
 
