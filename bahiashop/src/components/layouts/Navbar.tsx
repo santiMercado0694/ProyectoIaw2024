@@ -31,17 +31,22 @@ const Navbar = () => {
                                 </Link>
                             </div>
 
-                            {/* Right side: session buttons and cart */}
                             <div className="flex items-center space-x-4 lg:space-x-6">
                                 {session ? (
-                                    <button 
-                                        onClick={handleSignOut}
-                                        className={buttonVariants({
-                                            variant: "ghost",
-                                        })}
-                                    >
-                                        CERRAR SESIÓN
-                                    </button>
+                                    <>
+                                        <strong className="text-gray-700 text-sm">{session.user.nombre.toUpperCase()} {session.user.apellido.toUpperCase()}</strong>
+                                        <button 
+                                            onClick={handleSignOut}
+                                            className={buttonVariants({
+                                                variant: "ghost",
+                                            })}
+                                        >
+                                            CERRAR SESIÓN
+                                        </button>
+                                        <div className="ml-4 flow-root lg:ml-6">
+                                            <Cart />
+                                        </div>
+                                    </>
                                 ) : (
                                     <>
                                         <Link href='/SignIn' className={buttonVariants({ variant: "ghost" })}>
@@ -53,9 +58,6 @@ const Navbar = () => {
                                         </Link>
                                     </>
                                 )}
-                                <div className="ml-4 flow-root lg:ml-6">
-                                    <Cart />
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -66,3 +68,5 @@ const Navbar = () => {
 }
 
 export default Navbar;
+
+

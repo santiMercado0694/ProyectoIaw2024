@@ -12,7 +12,7 @@ const AboutUsPage: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1000); // Simula una carga de 3 segundos, puedes ajustar el tiempo según tu necesidad
+    }, 1000); 
 
     return () => clearTimeout(timer);
   }, []);

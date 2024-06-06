@@ -6,11 +6,14 @@ import SearchBar from "../layouts/SearchBar";
 import { FaShoppingCart } from 'react-icons/fa';
 import { MdAddShoppingCart } from "react-icons/md";
 import { useRouter } from 'next/navigation';
+import { useSession } from "next-auth/react";
 
 export function ProductCard() {
-  const { productos, setSearch, search, getProductsFromAPI, getProductsByCategory } = useGlobalContext();
+  const { productos, setSearch, search, getProductsByCategory, addProductCart } = useGlobalContext();
+  const { data: session } = useSession();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
+  const router = useRouter();
 
   useEffect(() => {
     setCurrentPage(1); 
@@ -25,8 +28,6 @@ export function ProductCard() {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
 
-  const router = useRouter();
-
   const handleClick = (product: any) => {
     router.push(`/Product/${product.id}`);
   };
@@ -35,12 +36,22 @@ export function ProductCard() {
     setCurrentPage(pageNumber);
   };
 
-  const handleAddToCart = (id: number) => {
-    console.log(`Agregando producto al carrito: ${id}`);
+  const handleAddToCart = (id_producto: string) => {
+    if (session && session.user && session.user.user_id) {
+      addProductCart(session.user.user_id, id_producto, 1);
+      console.log("Agregando producto al carrito");
+    } else {
+      router.push("/SignIn");
+    }
   };
 
   const handleBuyNow = (id: number) => {
-    console.log(`Comprando producto: ${id}`);
+    if (session && session.user && session.user.user_id) {
+      router.push("/Payment");
+      console.log(`Comprando producto: ${id}`);
+    } else {
+      router.push("/SignIn");
+    }
   };
 
   return (
@@ -73,20 +84,32 @@ export function ProductCard() {
                 {producto.details}
               </div>
               <div className="flex flex-col items-start justify-between space-y-2">
-                <button
-                  className="w-full flex items-center justify-center space-x-2 rounded-lg bg-red-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-300"
-                  onClick={() => handleBuyNow(parseInt(producto.id))}
-                >
-                  <FaShoppingCart style={{ fontSize: "1rem" }} /> 
-                  <span>Comprar ahora</span>
-                </button>
-                <button
-                  className="w-full flex items-center justify-center space-x-2 rounded-lg bg-cyan-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-cyan-800 focus:outline-none focus:ring-4 focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800"
-                  onClick={() => handleAddToCart(parseInt(producto.id))}
-                >
-                  <MdAddShoppingCart style={{ fontSize: "1.2rem" }} />
-                  <span>Agregar al carrito</span>
-                </button>
+                <span className="text-3xl font-bold text-gray-900 dark:text-white mb-3">${producto.price.toLocaleString()}</span>
+                <div className={producto.stock > 0 ? "text-teal-400" : "text-rose-400"}>
+                  {producto.stock > 0 ? (
+                      <strong>STOCK DISPONIBLE: {producto.stock}</strong>
+                  ) : (
+                      <strong>SIN STOCK DISPONIBLE </strong>
+                  )}
+                </div>
+                {producto.stock > 0 && (
+                  <>
+                    <button
+                      className="w-full flex items-center justify-center space-x-2 rounded-lg bg-red-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-300"
+                      onClick={() => handleBuyNow(parseInt(producto.id))}
+                    >
+                      <FaShoppingCart style={{ fontSize: "1rem" }} /> 
+                      <span>Comprar ahora</span>
+                    </button>
+                    <button
+                      className="w-full flex items-center justify-center space-x-2 rounded-lg bg-cyan-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-cyan-800 focus:outline-none focus:ring-4 focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800"
+                      onClick={() => handleAddToCart(producto.id)}
+                    >
+                      <MdAddShoppingCart style={{ fontSize: "1.2rem" }} />
+                      <span>Agregar al carrito</span>
+                    </button>
+                  </>
+                )}
               </div>
             </Card>
         ))}

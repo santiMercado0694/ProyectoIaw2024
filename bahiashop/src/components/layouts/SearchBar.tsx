@@ -11,7 +11,7 @@ interface SearchBarProps {
 }
 
 const SearchBar = ({ setSearch, getProductsByCategory, setPaginationPage, actualPage }: SearchBarProps) => {
-  const { categories, loading } = useGlobalContext(); // Asumiendo que loading está disponible en el contexto
+  const { categories, loading } = useGlobalContext(); 
   const [searchText, setSearchText] = useState("");
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -7,10 +7,9 @@ import { useGlobalContext, Product } from '@/context/StoreProvider';
 import MaxWidthWrapper from '@/components/layouts/MaxWidthWrapper';
 import ProductDetails from './ProductDetails';
 import { useParams } from 'next/navigation';
-import { TrendingUpIcon } from 'lucide-react';
 
 const Producto = () => {
-  const { getProductById, loading } = useGlobalContext();
+  const { getProductById, loading, addProductCart } = useGlobalContext();
   const [product, setProduct] = useState<Product | null>(null);
   const { ProductId } = useParams<{ ProductId: string }>();
   const [load, setLoad] = useState(true);
@@ -45,7 +44,7 @@ const Producto = () => {
           <Loader type="Puff" color="#00BFFF" height={100} width={100} timeout={1000} />
         </div>
       ) : product ? (
-        <ProductDetails product={product} />
+        <ProductDetails product={product} addProductCart={addProductCart} />
       ) : (
         <div> </div>
       )}

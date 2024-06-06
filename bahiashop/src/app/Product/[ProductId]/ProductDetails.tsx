@@ -1,25 +1,52 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Product } from '@/context/StoreProvider'; 
 import { FaShoppingCart } from 'react-icons/fa';
 import { MdAddShoppingCart } from 'react-icons/md';
+import { useRouter } from 'next/navigation';
+import { useSession } from "next-auth/react";
 
 interface ProductDetailsProps {
     product: Product;
+    addProductCart: (user_id: string, id_producto: string, quantity: number) => void;
 }
 
-const Horizontal = () => {
-    return <hr className="w-[30%] my-2" />
-}
+const Horizontal = () => <hr className="w-[30%] my-2" />;
 
-const handleAddToCart = (id: number) => {
-    console.log(`Agregando producto al carrito: ${id}`);
-  };
+const ProductDetails: React.FC<ProductDetailsProps> = ({ product, addProductCart }) => {
+    const [quantity, setQuantity] = useState(1); 
+    const { data: session } = useSession();
+    const router = useRouter();
 
-  const handleBuyNow = (id: number) => {
-    console.log(`Comprando producto: ${id}`);
-  };
+    const handleAddToCart = (id_producto: string) => {
+        if (session && session.user && session.user.user_id) {
+            addProductCart(session.user.user_id, id_producto, quantity); 
+            console.log("Agregando producto al carrito");
+        } else {
+            router.push("/SignIn");
+        }
+    };
 
-const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
+    const handleBuyNow = (id: number) => {
+        if (session && session.user && session.user.user_id) {
+            router.push("/Payment");
+            console.log(`Comprando producto: ${id}`);
+        } else {
+            router.push("/SignIn");
+        }
+    };
+
+    const incrementQuantity = () => {
+        if (quantity < product.stock) {
+            setQuantity(quantity + 1);
+        }
+    };
+
+    const decrementQuantity = () => {
+        if (quantity > 1) {
+            setQuantity(quantity - 1);
+        }
+    };
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
@@ -35,30 +62,60 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 <div><span className="font-semibold">DESCRIPCION:</span></div>
                 <div className="text-justify">{product.description}</div>     
                 <Horizontal/>
-                <div className={product.stock > 0 ? "text-teal-400" : "text-rose-400"}>
-                    {product.stock > 0 ? (
-                        <strong>STOCK DISPONIBLE: {product.stock}</strong>
-                    ) : (
-                        <strong>SIN STOCK DISPONIBLE </strong>
-                    )}
-                </div>
-                <Horizontal/>
-                <span className="font-semibold">CANTIDAD:</span>
-                <Horizontal/>
-                <button
-                  className="w-full flex items-center justify-center space-x-2 rounded-lg bg-red-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-300 mb-6"
-                  onClick={() => handleBuyNow(parseInt(product.id))}
-                >
-                  <FaShoppingCart style={{ fontSize: "1rem" }} /> 
-                  <span>Comprar ahora</span>
-                </button>
-                <button
-                  className="w-full flex items-center justify-center space-x-2 rounded-lg bg-cyan-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-cyan-800 focus:outline-none focus:ring-4 focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800 mt-2"
-                  onClick={() => handleAddToCart(parseInt(product.id))}
-                >
-                  <MdAddShoppingCart style={{ fontSize: "1.2rem" }} />
-                  <span>Agregar al carrito</span>
-                </button>
+                {product.stock > 0 ? (
+                    <>
+                        <div className="text-teal-400">
+                            <strong>STOCK DISPONIBLE: {product.stock}</strong>
+                        </div>
+                        <Horizontal/>
+                        <div className="flex items-center space-x-2">
+                            <span className="font-semibold">CANTIDAD:</span>
+                            <div className="flex items-center space-x-2">
+                                <button
+                                    className="bg-gray-200 px-2 py-1 rounded-md"
+                                    onClick={decrementQuantity}
+                                    disabled={quantity === 1}
+                                >
+                                    -
+                                </button>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max={product.stock} 
+                                    value={quantity}
+                                    className="w-16 px-3 py-2 border border-gray-300 rounded-md text-center"
+                                    readOnly 
+                                />
+                                <button
+                                    className="bg-gray-200 px-2 py-1 rounded-md"
+                                    onClick={incrementQuantity}
+                                    disabled={quantity === product.stock}
+                                >
+                                    +
+                                </button>
+                            </div>
+                        </div>
+                        <Horizontal/>
+                        <button
+                            className="w-full flex items-center justify-center space-x-2 rounded-lg bg-red-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-300 mb-6"
+                            onClick={() => handleBuyNow(parseInt(product.id))}
+                        >
+                            <FaShoppingCart style={{ fontSize: "1rem" }} /> 
+                            <span>Comprar ahora</span>
+                        </button>
+                        <button
+                            className="w-full flex items-center justify-center space-x-2 rounded-lg bg-cyan-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-cyan-800 focus:outline-none focus:ring-4 focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800 mt-2"
+                            onClick={() => handleAddToCart(product.id)} 
+                        >
+                            <MdAddShoppingCart style={{ fontSize: "1.2rem" }} />
+                            <span>Agregar al carrito</span>
+                        </button>
+                    </>
+                ) : (
+                    <div className="text-rose-400">
+                        <strong>SIN STOCK DISPONIBLE</strong>
+                    </div>
+                )}
             </div> 
         </div>
     );
