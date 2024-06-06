@@ -14,7 +14,7 @@ export default function Home() {
   useEffect(() => {
     getProductsFromAPI();
     getCategories();
-  }, [getProductsFromAPI, getCategories]);
+  }, []);
 
   return (
     <MaxWidthWrapper>
