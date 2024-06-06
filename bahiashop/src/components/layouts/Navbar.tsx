@@ -44,11 +44,11 @@ const Navbar = () => {
                                     <>
                                         {admin && (
                                             <Link href='/admin' className={buttonVariants({ variant: "ghost" })}>
-                                                ADMIN
+                                                PANEL ADMIN
                                             </Link>
                                         )}
                                         <strong className="text-gray-700 text-sm">
-                                            {session.user.nombre.toUpperCase()} {session.user.apellido.toUpperCase()}
+                                            BIENVENIDO {session.user.nombre.toUpperCase()}
                                         </strong>
                                         <button
                                             onClick={handleSignOut}

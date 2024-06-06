@@ -69,7 +69,6 @@ interface AppContextProps {
   clearCartByUserId: (user_id: string) => Promise<void>;
   getCategories: () => Promise<void>;
   getCategoriesNames: () => Promise<void>;
-  getCategoryById: (id: string) => Promise<Category>;
   getCategoryById: (id: string) => Promise<Category | null>;
   getCategoryByName: (name: string) => Promise<void>;
   createCategory: (name: string) => Promise<void>;
