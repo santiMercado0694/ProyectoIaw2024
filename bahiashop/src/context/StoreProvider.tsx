@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useContext, useEffect, ReactNode } from 'react';
+import {toast} from "react-toastify";
 
 
 export interface Category {
@@ -82,6 +83,8 @@ interface AppContextProps {
   updateUser: (user: User) => Promise<void>;
   deleteUser: (user_id: string) => Promise<void>;
   authenticateUser: (email: string, password: string) => Promise<void>;
+  alertSuccess: (content: string) => Promise<void>;
+  alertError: (contet: string) => Promise<void>;
 }
 
 // Crear el contexto
@@ -251,7 +254,9 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       setProductos((prevProducts) =>
         prevProducts.map((p) => (p.id === id ? updatedProduct : p))
       );
+      alertSuccess('Producto actualizado con éxito')
     } catch (error) {
+      alertError('Error al actualizar el producto')
       console.error('Error al actualizar el producto:', error);
     }
   };
@@ -267,7 +272,9 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       }
 
       setProductos((prevProducts) => prevProducts.filter((p) => p.id !== id));
+      alertSuccess('Producto eliminado con éxito')
     } catch (error) {
+      alertError('Error al eliminar el producto')
       console.error('Error al eliminar el producto:', error);
     }
   };
@@ -444,7 +451,9 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
           category.id === id ? data : category
         )
       );
+      alertSuccess('Categoría actualizada con éxito')
     } catch (error) {
+      alertError('Error al actualizar la categoría')
       console.error('Error:', error);
     }
   };
@@ -460,7 +469,9 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       setCategories(prevCategories =>
         prevCategories.filter(category => category.id !== id)
       );
+      alertSuccess('Categoría eliminada con éxito')
     } catch (error) {
+      alertError('Error al eliminar la categoría')
       console.error('Error:', error);
     }
   };
@@ -532,23 +543,29 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       setUsers(prevUsers => [...prevUsers, data]);
       console.log('Success:', data);
     } catch (error) {
+      alertError('Error al añadir el usuario')
       console.error('Error:', error);
     }
   };
 
   const updateUser = async (user: User) => {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/update`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(user),
-        });
-        if (!response.ok) {
-            throw new Error('Error al actualizar usuario');
-        }
-        await getUsers();
+      if (!/^\S+@\S+\.\S+$/.test(user.email)) {
+        throw new Error('Ingrese un email válido')
+      }
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/update`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(user),
+      });
+      if (!response.ok) {
+          throw new Error('Error al actualizar usuario');
+      }
+      await getUsers();
+      alertSuccess('Usuario actualizado con éxito')
     } catch (error) {
-        console.error('Error:', error);
+      alertError('Error al actualizar el usuario')
+      console.error('Error:', error);
     }
 };
 
@@ -562,7 +579,9 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
         throw new Error('Error al eliminar usuario');
       }
       await getUsers();
+      alertSuccess('Usuario eliminado con éxito')
     } catch (error) {
+      alertError('Error al eliminar el usuario')
       console.error('Error:', error);
     }
   };
@@ -575,6 +594,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
         body: JSON.stringify({ email, password }),
       });
       if (!response.ok) {
+        alertError('Error al autenticar usuario')
         throw new Error('Error al autenticar usuario');
       }
       const data = await response.json();
@@ -583,6 +603,28 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error('Error:', error);
     }
+  };
+  
+  // alertas globales
+  
+  const alertSuccess = async (content: string) => {
+    toast.success(content, {
+      position: 'top-right',
+      style: {
+        width: '300px',
+        fontSize: '1rem',
+      },
+    });
+  };
+  
+  const alertError = async (content: string) => {
+    toast.error(content, {
+      position: 'top-right',
+      style: {
+        width: '300px',
+        fontSize: '1rem',
+      },
+    });
   };
 
   useEffect(() => {
@@ -630,7 +672,9 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       addUser,
       updateUser,
       deleteUser,
-      authenticateUser
+      authenticateUser,
+      alertSuccess,
+      alertError
     }}>
       {children}
     </AppContext.Provider>

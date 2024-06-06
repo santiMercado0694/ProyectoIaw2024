@@ -19,10 +19,18 @@ const KeysPanel = (prop:Props) => {
   const [key, setKey] = useState<string>("Product");
   
   useEffect(() => {
-    internalSetList(key);
+    internalSetList(key, true);
   },[productos, categories, users]);
   
-  function internalSetList(val: string) {
+  function internalSetList(val: string, force:boolean = false) {
+    if(val == key) {
+      if (!force)
+        return;
+    }
+    else {
+      prop.onUpdateId('');
+    }
+    
     switch (val as keyof typeof DataType) {
       case "Product":
         setList(productos);
@@ -65,7 +73,7 @@ const KeysPanel = (prop:Props) => {
         <select
           multiple
           id="dataID"
-          onChange={prop.onUpdateId}
+          onChange={(evt) => prop.onUpdateId(evt.target.value)}
           className="block w-full h-full mt-2 pl-3 pr-10 py-2 text-base bg-gray-200 border border-gray-300 text-gray-700 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm rounded-md"
         >
           {

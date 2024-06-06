@@ -12,7 +12,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import Image from 'next/image'; 
 
 export function ProductCard() {
-  const { productos, setSearch, search, getProductsByCategory, addProductCart } = useGlobalContext();
+  const { productos, setSearch, search,
+    getProductsByCategory, addProductCart,
+    alertSuccess, alertError} = useGlobalContext();
   const { data: session } = useSession();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
@@ -42,15 +44,11 @@ export function ProductCard() {
   const handleAddToCart = (event: React.MouseEvent<HTMLButtonElement>, id_producto: string, producto_name: string) => {
     event.stopPropagation();
     if (session && session.user && session.user.user_id) {
-      addProductCart(session.user.user_id, id_producto, 1);
-      toast.success(`Se agrego ${producto_name} al carrito`, {
-        position: 'top-right',
-        style: {
-          width: '300px',
-          fontSize: '1rem', 
-        },
-      });
-      console.log("Agregando producto al carrito");
+      addProductCart(session.user.user_id, id_producto, 1)
+        .then( () => {
+          alertSuccess(`Se agrego ${producto_name} al carrito`);
+          }
+        )
     } else {
       router.push("/SignIn");
     }
