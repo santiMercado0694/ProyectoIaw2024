@@ -38,7 +38,7 @@ const Navbar = () => {
                             {/* Logo */}
                             <div className="ml-4 flex lg:ml-0">
                                 <Link href="/">
-                                    <Image src="/Logo.webp" alt="Logo" width={70} height={50} />
+                                    <Image src="/logo.webp" alt="logo" width={70} height={50} />
                                 </Link>
                             </div>
 
