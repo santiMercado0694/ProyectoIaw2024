@@ -8,19 +8,34 @@ export interface Category {
   nombre: string;
 }
 
+export interface CartUser {
+  cart_id: string;
+  user_id: string;
+}
+
 export interface Product {
   id: string;
   name: string;
+  details: string;
+  description: string;
   price: number;
   stock: number;
+  category_id: number;
+  image_path: string;
+}
+
+export interface Cart {
+  cart_item_id: string;
+  cart_id: string;
+  name: string;
+  price: number;
   quantity: number;
   image_path: string;
-  rating: number;
 }
 
 
 interface User {
-  id: string;
+  user_id: string;
   nombre: string;
   apellido: string;
   email: string;
@@ -30,7 +45,7 @@ interface User {
 interface AppContextProps {
   loading: boolean;
   productos: Product[];
-  cart: Product[];
+  cart: Cart[];
   categories: Category[];
   search: string;
   users: User[];
@@ -38,17 +53,34 @@ interface AppContextProps {
   setSearch: React.Dispatch<React.SetStateAction<string>>;
   getProductsFromAPI: () => Promise<void>;
   getProductsByCategory: (id: string) => Promise<void>;
-  addProductCart: (product: Omit<Product, 'quantity'>) => Promise<void>;
+  getProductById: (id: string) => Promise<Product | null>;
+  getProductByName: (name: string) => Promise<void>;
+  getProductStock: (id: string) => Promise<number | null>;
+  addProductCart: (user_id: string, product_id: string, quantity: number) => Promise<void>;
   updateProductStock: (id: string, stock: number) => Promise<void>;
-  updateProductQuantity: (id: string, quantity: number) => Promise<void>;
-  deleteCart: () => Promise<void>;
-  deleteProductCart: (id: string) => Promise<void>;
+  createProduct: (product: Omit<Product, 'id'>) => Promise<void>;
+  updateProduct: (id: string, product: Omit<Product, 'id'>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
+  getCartFromCarts: (user_id: string) => Promise<CartUser | null>;
+  getCartByUserId: (user_id: string) => Promise<void>;
+  getCartItemById: (cart_item_id: string) => Promise<Cart | null>;
+  updateCartItemQuantity: (user_id: string, cart_item_id: string, quantity: number) => Promise<void>;
+  removeProductFromCart: (user_id: string, cart_item_id: string) => Promise<void>;
+  clearCartByUserId: (user_id: string) => Promise<void>;
+  getCategories: () => Promise<void>;
+  getCategoriesNames: () => Promise<void>;
+  getCategoryById: (id: string) => Promise<Category | null>;
+  getCategoryByName: (name: string) => Promise<void>;
+  createCategory: (name: string) => Promise<void>;
+  updateCategory: (id: string, name: string) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
   getUsers: () => Promise<void>;
+  getUserById: (id: string) => Promise<User>;
   getUserByName: (name: string) => Promise<void>;
   getUserByEmail: (email: string) => Promise<void>;
-  addUser: (user: Omit<User, 'id' | 'rol'> & { password: string }) => Promise<void>;
-  updateUser: (user: Omit<User, 'rol'>) => Promise<void>;
-  deleteUser: (id: string) => Promise<void>;
+  addUser: (user: Omit<User, 'user_id' | 'rol'> & { password: string }) => Promise<void>;
+  updateUser: (user: User) => Promise<void>;
+  deleteUser: (user_id: string) => Promise<void>;
   authenticateUser: (email: string, password: string) => Promise<void>;
 }
 
@@ -59,7 +91,7 @@ const AppContext = React.createContext<AppContextProps | undefined>(undefined);
 const AppProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [productos, setProductos] = useState<Product[]>([]);
-  const [cart, setCart] = useState<Product[]>([]);
+  const [cart, setCart] = useState<Cart[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
@@ -99,51 +131,69 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const addProductCart = async (product: Omit<Product, 'quantity'>) => {
-    try {
-      const data = { ...product, quantity: 1 };
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        throw new Error('Error al agregar producto al carrito');
-      }
-      await getCartFromAPI();
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-
-  const getCartFromAPI = async () => {
+  const getProductById = async (id: string) => {
     try {
       setLoading(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}`);
       if (!response.ok) {
-        throw new Error('Error al obtener el carrito');
+        throw new Error('Error al obtener el producto por ID');
       }
       const data = await response.json();
-      setCart(data);
+      setLoading(false);
+      return data[0];
     } catch (error) {
       console.error('Error:', error);
-    } finally {
       setLoading(false);
+      return null;
     }
   };
 
-  const updateProductQuantity = async (id: string, quantity: number) => {
+  const getProductByName = async (name: string) => {
     try {
-      const data = { id, quantity };
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/update`, {
-        method: 'PUT',
+      setLoading(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/name/${name}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener el producto por nombre');
+      }
+      const data = await response.json();
+      setLoading(false);
+      return data;
+    } catch (error) {
+      console.error('Error:', error);
+      setLoading(false);
+      return null;
+    }
+  };
+
+  const getProductStock = async (id: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}/stock`);
+      if (!response.ok) {
+        throw new Error('Error al obtener el stock del producto');
+      }
+      const data = await response.json();
+      setLoading(false);
+      return data.stock;
+    } catch (error) {
+      console.error('Error:', error);
+      setLoading(false);
+      return null;
+    }
+  };
+
+  const addProductCart = async (user_id: string, product_id: string, quantity: number) => {
+    try {
+      const data = { user_id, product_id,quantity };
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/cart`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) {
         throw new Error('Error al actualizar la cantidad del producto');
       }
-      await getCartFromAPI();
+      await getCartByUserId(user_id);
     } catch (error) {
       console.error('Error:', error);
     }
@@ -152,7 +202,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
   const updateProductStock = async (id: string, stock: number) => {
     try {
       const data = { id, stock };
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/update`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/stock`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -166,42 +216,250 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const deleteProductCart = async (id: string) => {
+  const createProduct = async (product: Omit<Product, 'id'>) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/delete/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al crear el producto');
+      }
+
+      const newProduct = await response.json();
+      setProductos((prevProducts) => [...prevProducts, newProduct]);
+    } catch (error) {
+      console.error('Error al crear el producto:', error);
+    }
+  };
+
+  const updateProduct = async (id: string, product: Omit<Product, 'id'>) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al actualizar el producto');
+      }
+
+      const updatedProduct = await response.json();
+      setProductos((prevProducts) =>
+        prevProducts.map((p) => (p.id === id ? updatedProduct : p))
+      );
+    } catch (error) {
+      console.error('Error al actualizar el producto:', error);
+    }
+  };
+
+  const deleteProduct = async (id: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al eliminar el producto');
+      }
+
+      setProductos((prevProducts) => prevProducts.filter((p) => p.id !== id));
+    } catch (error) {
+      console.error('Error al eliminar el producto:', error);
+    }
+  };
+
+  const getCartFromCarts = async (user_id: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/carts/${user_id}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener el cart por ID');
+      }
+      const data = await response.json();
+      setLoading(false);
+      return data[0];
+    } catch (error) {
+      console.error('Error:', error);
+      setLoading(false);
+      return null;
+    }
+  };
+
+  const getCartByUserId = async (user_id: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/${user_id}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener el carrito del usuario');
+      }
+      const data = await response.json();
+      setCart(data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const getCartItemById = async (cart_item_id: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/item/${cart_item_id}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener el producto por ID');
+      }
+      const data = await response.json();
+      return data[0];
+    } catch (error) {
+      console.error('Error:', error);
+      return null;
+    }
+  };
+  
+  const updateCartItemQuantity = async (user_id: string, cart_item_id: string, quantity: number) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/${user_id}/update/${cart_item_id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity }),
+      });
+      if (!response.ok) {
+        throw new Error('Error al actualizar la cantidad del producto en el carrito');
+      }
+      await getCartByUserId(user_id);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  
+  const removeProductFromCart = async (user_id: string, cart_item_id: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/${user_id}/remove/${cart_item_id}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
         throw new Error('Error al eliminar el producto del carrito');
       }
-      await getCartFromAPI();
+      await getCartByUserId(user_id);
     } catch (error) {
       console.error('Error:', error);
     }
   };
-
-  const deleteCart = async () => {
+  
+  const clearCartByUserId = async (user_id: string) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/delete`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/${user_id}/clear`, {
         method: 'DELETE',
       });
       if (!response.ok) {
-        throw new Error('Error al eliminar el carrito');
+        throw new Error('Error al vaciar el carrito del usuario');
       }
-      await getCartFromAPI();
+      await getCartByUserId(user_id);
     } catch (error) {
       console.error('Error:', error);
     }
   };
 
-  const getCategoriesFromAPI = async () => {
+  const getCategories = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`);
       if (!response.ok) {
-        throw new Error('Error al obtener las categorías');
+        throw new Error('Error al obtener categorías');
       }
       const data = await response.json();
       setCategories(data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  
+  const getCategoriesNames = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/names`);
+      if (!response.ok) {
+        throw new Error('Error al obtener nombres de categorías');
+      }
+      const data = await response.json();
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  
+  const getCategoryById = async (id: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/${id}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener la categoría por ID');
+      }
+      const data = await response.json();
+      return data[0];
+    } catch (error) {
+      console.error('Error:', error);
+      return null;
+    }
+  };
+  
+  const getCategoryByName = async (name: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/name/${name}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener la categoría por nombre');
+      }
+      const data = await response.json();
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  
+  const createCategory = async (name: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: name }),
+      });
+      if (!response.ok) {
+        throw new Error('Error al crear la categoría');
+      }
+      const data = await response.json();
+      setCategories(prevCategories => [...prevCategories, data]);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  
+  const updateCategory = async (id: string, name: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: name }),
+      });
+      if (!response.ok) {
+        throw new Error('Error al actualizar la categoría');
+      }
+      const data = await response.json();
+      setCategories(prevCategories =>
+        prevCategories.map(category =>
+          category.id === id ? data : category
+        )
+      );
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  
+  const deleteCategory = async (id: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Error al eliminar la categoría');
+      }
+      setCategories(prevCategories =>
+        prevCategories.filter(category => category.id !== id)
+      );
     } catch (error) {
       console.error('Error:', error);
     }
@@ -216,6 +474,20 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       }
       const data = await response.json();
       setUsers(data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const getUserById = async (id: string) => {
+    try {
+      // TODO agregar esto a la API
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener usuario por nombre');
+      }
+      const data = await response.json();
+      return data[0];
     } catch (error) {
       console.error('Error:', error);
     }
@@ -247,7 +519,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const addUser = async (user: Omit<User, 'id' | 'rol'> & { password: string }) => {
+  const addUser = async (user: Omit<User, 'user_id' | 'rol'> & { password: string }) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
         method: 'POST',
@@ -265,25 +537,26 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const updateUser = async (user: Omit<User, 'rol'>) => {
+  const updateUser = async (user: User) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/update`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(user),
-      });
-      if (!response.ok) {
-        throw new Error('Error al actualizar usuario');
-      }
-      await getUsers();
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/update`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(user),
+        });
+        if (!response.ok) {
+            throw new Error('Error al actualizar usuario');
+        }
+        await getUsers();
     } catch (error) {
-      console.error('Error:', error);
+        console.error('Error:', error);
     }
-  };
+};
 
-  const deleteUser = async (id: string) => {
+
+  const deleteUser = async (user_id: string) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/delete/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/delete/${user_id}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
@@ -314,9 +587,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     getProductsFromAPI();
-    getCartFromAPI();
-    getCategoriesFromAPI();
-    getUsers();
+    getCategories();
   }, []);
 
   return (
@@ -331,12 +602,29 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       setCategories,
       setSearch,
       getProductsByCategory,
+      getProductById,
+      getProductByName,
+      getProductStock,
       addProductCart,
+      getCartItemById,
       updateProductStock,
-      updateProductQuantity,
-      deleteCart,
-      deleteProductCart,
+      createProduct,
+      updateProduct,
+      deleteProduct,
+      getCartFromCarts,
+      getCartByUserId,
+      updateCartItemQuantity,
+      removeProductFromCart,
+      clearCartByUserId,
+      getCategories,
+      getCategoriesNames,
+      getCategoryById,
+      getCategoryByName,
+      createCategory,
+      updateCategory,
+      deleteCategory,
       getUsers,
+      getUserById,
       getUserByName,
       getUserByEmail,
       addUser,
