@@ -50,7 +50,7 @@ const Navbar = () => {
                                             </Link>
                                         )}
                                         <strong className="text-gray-700 text-sm">
-                                            BIENVENIDO {session.user.nombre.toUpperCase()}
+                                            {session.user.nombre.toUpperCase()}
                                         </strong>
                                         <button
                                             onClick={handleSignOut}
