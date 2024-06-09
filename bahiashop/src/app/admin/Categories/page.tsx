@@ -1,31 +1,46 @@
 "use client";
 
 import MaxWidthWrapper from "@/components/layouts/MaxWidthWrapper";
-import { useGlobalContext } from "@/context/StoreProvider";
+import { useGlobalContext, Category } from "@/context/StoreProvider";
 import { useSession } from "next-auth/react";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Modal } from "flowbite-react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 
-const AdminProductPanel = () => {
-  const { data: session } = useSession();
+const AdminCategoriesPanel = () => {
+  const { categories, getCategories, createCategory, updateCategory, deleteCategory } = useGlobalContext();
   const [addCategoriesModal, setAddCategoriesModal] = useState(false);
   const [editCategoriesModal, setEditCategoriesModal] = useState(false);
   const [deleteCategoriesModal, setDeleteCategoriesModal] = useState(false);
-  const { getCategories, createCategory, updateCategory, deleteCategory } =
-    useGlobalContext();
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [categoryName, setCategoryName] = useState("");
 
-  function handleEdit(): void {
-    throw new Error("Function not implemented.");
-  }
+  useEffect(() => {
+    getCategories();
+  }, []);
 
-  function handleDelete(): void {
-    throw new Error("Function not implemented.");
-  }
+  const handleAddCategory = async () => {
+    await createCategory(categoryName);
+    setAddCategoriesModal(false);
+    setCategoryName("");
+  };
 
-  function handleCategoriaChange(event: ChangeEvent<HTMLSelectElement>): void {
-    throw new Error("Function not implemented.");
-  }
+  const handleEditCategory = async () => {
+    if (selectedCategory) {
+      await updateCategory(selectedCategory.id, categoryName); 
+      setEditCategoriesModal(false);
+      setCategoryName("");
+      setSelectedCategory(null);
+    }
+  };
+
+  const handleDeleteCategory = async () => {
+    if (selectedCategory) {
+      await deleteCategory(selectedCategory.id);
+      setDeleteCategoriesModal(false);
+      setSelectedCategory(null);
+    }
+  };
 
   return (
     <MaxWidthWrapper>
@@ -88,190 +103,121 @@ const AdminProductPanel = () => {
               </div>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                  <tr>
-                    <th scope="col" className="p-4">
-                      Categoria
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <th
-                      scope="row"
-                      className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+              <th scope="col" className="p-4">
+                Categoria
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {categories.map((category) => (
+              <tr key={category.id} className="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                  <div className="flex items-center mr-3">
+                    {category.nombre}
+                  </div>
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-end space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedCategory(category);
+                        setEditCategoriesModal(true);
+                      }}
+                      className="flex items-center justify-center text-green-600 bg-green-100 hover:bg-green-200 focus:ring-4 focus:ring-green-300 border border-green-300 rounded-lg text-sm font-medium px-4 py-2"
                     >
-                      <div className="flex items-center mr-3">
-                        Celular&#34;
-                      </div>
-                    </th>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end space-x-3">
-                        <button
-                          type="button"
-                          onClick={() => setEditCategoriesModal(true)}
-                          className="flex items-center justify-center text-green-600 bg-green-100 hover:bg-green-200 focus:ring-4 focus:ring-green-300 border border-green-300 rounded-lg text-sm font-medium px-4 py-2"
-                        >
-                          <svg
-                            className="h-4 w-4 mr-2"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM12 6v6m0 0v6m0-6h6m-6 0H6"
-                            ></path>
-                          </svg>
-                          Editar
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setDeleteCategoriesModal(true)}
-                          className="flex items-center justify-center text-red-600 bg-red-100 hover:bg-red-200 focus:ring-4 focus:ring-red-300 border border-red-300 rounded-lg text-sm font-medium px-4 py-2"
-                        >
-                          <svg
-                            className="h-4 w-4 mr-2"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M5 6h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2zm4 0V4a2 2 0 012-2h2a2 2 0 012 2v2M15 6V4a2 2 0 012-2h2a2 2 0 012 2v2"
-                            ></path>
-                          </svg>
-                          Eliminar
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedCategory(category);
+                        setDeleteCategoriesModal(true);
+                      }}
+                      className="flex items-center justify-center text-red-600 bg-red-100 hover:bg-red-200 focus:ring-4 focus:ring-red-300 border border-red-300 rounded-lg text-sm font-medium px-4 py-2"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
           </div>
         </div>
-
-        <Modal
-          show={addCategoriesModal}
-          onClose={() => setAddCategoriesModal(false)}
-        >
-          <Modal.Header>Agregar Categoria</Modal.Header>
-          <Modal.Body>
-            <form>
-              <div className="mb-4">
-                <label
-                  htmlFor="product-name"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Nombre de la Categoria
-                </label>
-                <input
-                  type="text"
-                  id="product-name"
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                />
-              </div>
-            </form>
-          </Modal.Body>
-          <Modal.Footer>
-            <button
-              type="button"
-              onClick={() => setAddCategoriesModal(false)}
-              className="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-            >
-              Agregar Categoria
-            </button>
-            <button
-              type="button"
-              onClick={() => setAddCategoriesModal(false)}
-              className="text-gray-700 bg-white hover:bg-gray-50 focus:ring-4 focus:ring-primary-300 border border-gray-300 rounded-lg text-sm font-medium px-4 py-2 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-600"
-            >
-              Cancelar
-            </button>
-          </Modal.Footer>
-        </Modal>
-
-        <Modal
-          show={editCategoriesModal}
-          onClose={() => setEditCategoriesModal(false)}
-        >
-          <Modal.Header>Editar Categoria</Modal.Header>
-          <Modal.Body>
-            <form>
-              <div className="mb-4">
-                <label
-                  htmlFor="product-name"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Nombre de la Categoria
-                </label>
-                <input
-                  type="text"
-                  id="product-name"
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                />
-              </div>
-            </form>
-          </Modal.Body>
-          <Modal.Footer>
-            <button
-              type="button"
-              onClick={() => setAddCategoriesModal(false)}
-              className="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-            >
-              Editar Categoria
-            </button>
-            <button
-              type="button"
-              onClick={() => setAddCategoriesModal(false)}
-              className="text-gray-700 bg-white hover:bg-gray-50 focus:ring-4 focus:ring-primary-300 border border-gray-300 rounded-lg text-sm font-medium px-4 py-2 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-600"
-            >
-              Cancelar
-            </button>
-          </Modal.Footer>
-        </Modal>
-
-        <Modal
-          show={deleteCategoriesModal}
-          size="md"
-          onClose={() => setDeleteCategoriesModal(false)}
-          popup
-        >
-          <Modal.Header />
-          <Modal.Body>
-            <div className="text-center">
-              <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
-              <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                Esta seguro que desea eliminar esta categoria?
-              </h3>
-              <div className="flex justify-center gap-4">
-                <Button
-                  color="failure"
-                  onClick={() => setDeleteCategoriesModal(false)}
-                >
-                  {"Si, Estoy Seguro"}
-                </Button>
-                <Button
-                  color="gray"
-                  onClick={() => setDeleteCategoriesModal(false)}
-                >
-                  No, Cancelar
-                </Button>
-              </div>
-            </div>
-          </Modal.Body>
-        </Modal>
       </section>
+
+      <Modal show={addCategoriesModal} onClose={() => setAddCategoriesModal(false)}>
+        <Modal.Header>
+          Agregar Categoria
+        </Modal.Header>
+        <Modal.Body>
+          <input
+            type="text"
+            value={categoryName}
+            onChange={(e) => setCategoryName(e.target.value)}
+            placeholder="Nombre de la categoria"
+            className="w-full p-2 border border-gray-300 rounded"
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={handleAddCategory}>
+            Agregar
+          </Button>
+          <Button onClick={() => setAddCategoriesModal(false)} color="gray">
+            Cancelar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={editCategoriesModal} onClose={() => setEditCategoriesModal(false)}>
+        <Modal.Header>
+          Editar Categoria
+        </Modal.Header>
+        <Modal.Body>
+          <input
+            type="text"
+            value={categoryName}
+            onChange={(e) => setCategoryName(e.target.value)}
+            placeholder="Nombre de la categoria"
+            className="w-full p-2 border border-gray-300 rounded"
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={handleEditCategory}>
+            Editar
+          </Button>
+          <Button onClick={() => setEditCategoriesModal(false)} color="gray">
+            Cancelar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal show={deleteCategoriesModal} size="md" onClose={() => setDeleteCategoriesModal(false)} popup>
+        <Modal.Header />
+        <Modal.Body>
+          <div className="text-center">
+            <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
+            <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+            ¿Está seguro que desea eliminar esta categoria?
+            </h3>
+            <div className="flex justify-center gap-4">
+              <Button color="failure" onClick={handleDeleteCategory}>
+                {"Si, Estoy seguro"}
+              </Button>
+              <Button color="gray" onClick={() => setDeleteCategoriesModal(false)}>
+                No, cancelar
+              </Button>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
     </MaxWidthWrapper>
   );
 };
 
-export default AdminProductPanel;
+export default AdminCategoriesPanel;
