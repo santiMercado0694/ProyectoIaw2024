@@ -188,7 +188,7 @@ const AdminCategoriesPanel = () => {
         <Modal.Body>
           <input
             type="text"
-            value={categoryName}
+            value={categoryName || (selectedCategory ? selectedCategory.nombre : '')}
             onChange={(e) => setCategoryName(e.target.value)}
             placeholder="Nombre de la categoria"
             className="w-full p-2 border border-gray-300 rounded"
