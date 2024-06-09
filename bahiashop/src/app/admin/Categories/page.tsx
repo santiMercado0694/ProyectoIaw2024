@@ -5,6 +5,9 @@ import { useGlobalContext, Category } from "@/context/StoreProvider";
 import { useEffect, useState } from "react";
 import { Button, Modal } from "flowbite-react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
+import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AdminCategoriesPanel = () => {
   const { categories, getCategories, createCategory, updateCategory, deleteCategory } = useGlobalContext();
@@ -27,7 +30,14 @@ const AdminCategoriesPanel = () => {
     await createCategory(categoryName);
     setAddCategoriesModal(false);
     setCategoryName("");
-  };
+    toast.success(`Se creo la categoria ${categoryName} exitosamente!`, {
+      position: 'top-right',
+      style: {
+        width: '300px',
+        fontSize: '1rem', 
+      },
+    });
+  }
 
   const handleEditCategory = async () => {
     if (selectedCategory) {
@@ -35,6 +45,13 @@ const AdminCategoriesPanel = () => {
       setEditCategoriesModal(false);
       setCategoryName("");
       setSelectedCategory(null);
+      toast.success(`Se edito la categoria exitosamente!`, {
+        position: 'top-right',
+        style: {
+          width: '300px',
+          fontSize: '1rem', 
+        },
+      });
     }
   };
 
@@ -43,6 +60,13 @@ const AdminCategoriesPanel = () => {
       await deleteCategory(selectedCategory.id);
       setDeleteCategoriesModal(false);
       setSelectedCategory(null);
+      toast.success(`Se elimino la categoria exitosamente!`, {
+        position: 'top-right',
+        style: {
+          width: '300px',
+          fontSize: '1rem', 
+        },
+      });
     }
   };
 
@@ -100,7 +124,9 @@ const AdminCategoriesPanel = () => {
                       className="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        <div className="flex items-center mr-3">{category.nombre}</div>
+                        <div className="flex items-center mr-3">
+                          {category.nombre}
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end space-x-3">
@@ -112,6 +138,7 @@ const AdminCategoriesPanel = () => {
                             }}
                             className="flex items-center justify-center text-green-600 bg-green-100 hover:bg-green-200 focus:ring-4 focus:ring-green-300 border border-green-300 rounded-lg text-sm font-medium px-4 py-2"
                           >
+                            <FaEdit className="mr-2" />
                             Editar
                           </button>
                           <button
@@ -122,6 +149,8 @@ const AdminCategoriesPanel = () => {
                             }}
                             className="flex items-center justify-center text-red-600 bg-red-100 hover:bg-red-200 focus:ring-4 focus:ring-red-300 border border-red-300 rounded-lg text-sm font-medium px-4 py-2"
                           >
+                            {/* Agregar el icono de eliminar */}
+                            <FaRegTrashAlt className="mr-2" />
                             Eliminar
                           </button>
                         </div>
@@ -173,7 +202,12 @@ const AdminCategoriesPanel = () => {
         </Modal.Footer>
       </Modal>
 
-      <Modal show={deleteCategoriesModal} size="md" onClose={() => setDeleteCategoriesModal(false)} popup>
+      <Modal
+        show={deleteCategoriesModal}
+        size="md"
+        onClose={() => setDeleteCategoriesModal(false)}
+        popup
+      >
         <Modal.Header>Eliminar Categoria</Modal.Header>
         <Modal.Body>
           <div className="text-center">
