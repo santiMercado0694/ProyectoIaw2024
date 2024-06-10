@@ -541,12 +541,12 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/update`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(user),
+            body: JSON.stringify({ user_id: user.user_id, rol: user.rol }), 
         });
         if (!response.ok) {
             throw new Error('Error al actualizar usuario');
         }
-        await getUsers();
+        await getUsers(); 
     } catch (error) {
         console.error('Error:', error);
     }
@@ -588,6 +588,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     getProductsFromAPI();
     getCategories();
+    getUsers();
   }, []);
 
   return (

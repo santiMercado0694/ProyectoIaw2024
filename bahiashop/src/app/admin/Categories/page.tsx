@@ -2,6 +2,7 @@
 
 import MaxWidthWrapper from "@/components/layouts/MaxWidthWrapper";
 import { useGlobalContext, Category } from "@/context/StoreProvider";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button, Modal } from "flowbite-react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
@@ -17,6 +18,7 @@ const AdminCategoriesPanel = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [categoryName, setCategoryName] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     getCategories();
@@ -25,6 +27,10 @@ const AdminCategoriesPanel = () => {
   const filteredCategories = categories.filter((category) =>
     category.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const navigateToAdmin = () => {
+    router.push("/admin");
+  };
 
   const handleAddCategory = async () => {
     await createCategory(categoryName);
@@ -105,6 +111,13 @@ const AdminCategoriesPanel = () => {
                     />
                   </svg>
                   Agregar Categoria
+                </button>
+                <button
+                  type="button"
+                  onClick={navigateToAdmin}
+                  className="flex items-center justify-center text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2"
+                >
+                  Panel Principal
                 </button>
               </div>
             </div>
