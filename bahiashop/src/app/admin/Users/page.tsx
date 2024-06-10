@@ -4,11 +4,11 @@ import MaxWidthWrapper from "@/components/layouts/MaxWidthWrapper";
 import { User, useGlobalContext } from "@/context/StoreProvider";
 import { useEffect, useState } from "react";
 import { Button, Modal } from "flowbite-react";
-import { HiOutlineExclamationCircle } from "react-icons/hi";
+import { HiOutlineExclamationCircle, HiSearch } from "react-icons/hi";
 import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AdminUserPanel = () => {
   const { users, getUsers, updateUser, deleteUser } = useGlobalContext();
@@ -23,11 +23,12 @@ const AdminUserPanel = () => {
     getUsers();
   }, []);
 
-  const filteredUsers = users.filter((user) =>
-    user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.rol.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(
+    (user) =>
+      user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.rol.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleEditUser = async () => {
@@ -35,13 +36,16 @@ const AdminUserPanel = () => {
       await updateUser({ ...selectedUser, rol: userRole });
       setEditUserModal(false);
       setUserRole("");
-      toast.success(`Se cambio el rol del usuario ${selectedUser.nombre} exitosamente!`, {
-        position: 'top-right',
-        style: {
-          width: '300px',
-          fontSize: '1rem', 
-        },
-      });
+      toast.success(
+        `Se cambio el rol del usuario ${selectedUser.nombre} exitosamente!`,
+        {
+          position: "top-right",
+          style: {
+            width: "300px",
+            fontSize: "1rem",
+          },
+        }
+      );
     }
   };
 
@@ -53,13 +57,16 @@ const AdminUserPanel = () => {
       await updateUser({ ...selectedUser, rol: userRole });
       setEditUserModal(false);
       setUserRole("");
-      toast.success(`Se elimino el usuario ${selectedUser.nombre} exitosamente!`, {
-        position: 'top-right',
-        style: {
-          width: '300px',
-          fontSize: '1rem', 
-        },
-      });
+      toast.success(
+        `Se elimino el usuario ${selectedUser.nombre} exitosamente!`,
+        {
+          position: "top-right",
+          style: {
+            width: "300px",
+            fontSize: "1rem",
+          },
+        }
+      );
     }
   };
 
@@ -71,13 +78,19 @@ const AdminUserPanel = () => {
     <MaxWidthWrapper>
       <section className="dark:bg-gray-900 p-4 sm:p-5 antialiased">
         <div className="flex flex-col md:flex-row items-stretch md:items-center md:space-x-3 space-y-3 md:space-y-0 justify-between mx-4 py-4 border-t dark:border-gray-700">
-          <div className="w-full md:w-1/2">
+          <div className="w-full md:w-1/2 relative">
+            {" "}
+            {/* Cambio en la clase aquí */}
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <HiSearch className="w-5 h-5 text-gray-500 dark:text-gray-400" />{" "}
+              {/* Agregar el icono HiSearch */}
+            </div>
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Buscar Usuario"
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-2 pl-10 border border-gray-300 rounded"
             />
           </div>
           <div className="w-full md:w-auto flex flex-col md:flex-row items-stretch md:items-center justify-end md:space-x-3 space-y-2 md:space-y-0 flex-shrink-0">

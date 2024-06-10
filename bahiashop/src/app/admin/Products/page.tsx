@@ -2,13 +2,11 @@
 
 import MaxWidthWrapper from "@/components/layouts/MaxWidthWrapper";
 import { useGlobalContext } from "@/context/StoreProvider";
-import { useSession } from "next-auth/react";
 import { ChangeEvent, useEffect, useState } from "react";
-import { Button, Dropdown, Modal } from "flowbite-react";
+import { Button, Modal } from "flowbite-react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 
 const AdminProductPanel = () => {
-  const { data: session } = useSession();
   const [addProductModal, setAddProductModal] = useState(false);
   const [editProductModal, setEditProductModal] = useState(false);
   const [deleteProductModal, setDeleteProductModal] = useState(false);
@@ -85,10 +83,6 @@ const AdminProductPanel = () => {
                   </svg>
                   Agregar Producto
                 </button>
-                <Dropdown label="Filtros" inline>
-                  <Dropdown.Item>Category</Dropdown.Item>
-                  <Dropdown.Item>Price</Dropdown.Item>
-                </Dropdown>
               </div>
             </div>
             <div className="overflow-x-auto">
