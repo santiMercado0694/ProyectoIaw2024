@@ -107,7 +107,6 @@ const AdminCategoriesPanel = () => {
     }
   };
 
-  // Function to handle opening edit modal and setting formData
   const handleEditProduct = (product: Product) => {
     setSelectedProduct(product);
     setFormData({
@@ -152,7 +151,6 @@ const AdminCategoriesPanel = () => {
         productStock: "",
         productImage: "",
       });
-      // Handle success message or navigation after update
     } catch (error) {
       console.error("Error al actualizar el producto:", error);
       // Handle error message or display notification
@@ -260,7 +258,7 @@ const AdminCategoriesPanel = () => {
                         {product.name}
                       </td>
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {product.category_id}
+                        {categories.find((category) => category.id === String(product.category_id))?.nombre || 'N/A'}
                       </td>
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         <div className="flex items-center mr-3">
@@ -453,7 +451,17 @@ const AdminCategoriesPanel = () => {
         show={editProductModal}
         size="md"
         popup
-        onClose={() => setEditProductModal(false)}
+        onClose={() => { setEditProductModal(false)
+          setFormData({
+            productName: "",
+            productDetails: "",
+            productDescription: "",
+            productCategory: "",
+            productPrice: "",
+            productStock: "",
+            productImage: "",
+          });
+        }}
       >
         <Modal.Header>Editar Producto</Modal.Header>
         <Modal.Body>
@@ -585,7 +593,17 @@ const AdminCategoriesPanel = () => {
             </div>
             <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-start md:space-x-3 flex-shrink-0">
               <Button type="submit">Guardar Cambios</Button>
-              <Button onClick={() => setEditProductModal(false)} color="gray">
+              <Button onClick={() => { setEditProductModal(false)
+                setFormData({
+                  productName: "",
+                  productDetails: "",
+                  productDescription: "",
+                  productCategory: "",
+                  productPrice: "",
+                  productStock: "",
+                  productImage: "",
+                });
+              }} color="gray">
                 Cancelar
               </Button>
             </div>
