@@ -70,7 +70,7 @@ interface AppContextProps {
   getCategories: () => Promise<void>;
   getCategoriesNames: () => Promise<void>;
   getCategoryById: (id: string) => Promise<Category>;
-  getCategoryByName: (name: string) => Promise<void>;
+  getCategoryByName: (name: string) => Promise<Category>;
   createCategory: (name: string) => Promise<void>;
   updateCategory: (id: string, name: string) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
@@ -406,6 +406,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
         throw new Error('Error al obtener la categoría por nombre');
       }
       const data = await response.json();
+      return data[0];
     } catch (error) {
       console.error('Error:', error);
     }
