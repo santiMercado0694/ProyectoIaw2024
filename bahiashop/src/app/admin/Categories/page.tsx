@@ -9,6 +9,9 @@ import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useSession } from "next-auth/react";
+import { isAdmin } from "@/lib/utils";
+import NotFound from "@/app/not-found";
 
 const AdminCategoriesPanel = () => {
   const { categories, getCategories, createCategory, updateCategory, deleteCategory } = useGlobalContext();
@@ -19,10 +22,17 @@ const AdminCategoriesPanel = () => {
   const [categoryName, setCategoryName] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
+  const { data: session } = useSession();
+  const [admin, setAdmin] = useState<boolean>(false);
 
   useEffect(() => {
     getCategories();
+    setAdmin(session ? isAdmin(session) : false);
   }, []);
+
+  if (!admin) {
+    return <NotFound />;
+  }
 
   const filteredCategories = categories.filter((category) =>
     category.nombre.toLowerCase().includes(searchTerm.toLowerCase())

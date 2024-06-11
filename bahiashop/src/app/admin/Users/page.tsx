@@ -9,6 +9,9 @@ import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSession } from "next-auth/react";
+import { isAdmin } from "@/lib/utils";
+import NotFound from "@/app/not-found";
 
 const AdminUserPanel = () => {
   const { users, getUsers, updateUser, deleteUser } = useGlobalContext();
@@ -18,10 +21,17 @@ const AdminUserPanel = () => {
   const [userRole, setUserRole] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
+  const { data: session } = useSession();
+  const [admin, setAdmin] = useState<boolean>(false);
 
   useEffect(() => {
     getUsers();
+    setAdmin(session ? isAdmin(session) : false);
   }, []);
+
+  if (!admin) {
+    return <NotFound />;
+  }
 
   const filteredUsers = users.filter(
     (user) =>

@@ -10,12 +10,17 @@ import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DropzoneComponent from "@/components/DropzoneComponent";
+import { useSession } from "next-auth/react";
+import { isAdmin } from "@/lib/utils";
+import NotFound from "@/app/not-found";
 
 const AdminProductPanel = () => {
   const [addProductModal, setAddProductModal] = useState(false);
   const [editProductModal, setEditProductModal] = useState(false);
   const [deleteProductModal, setDeleteProductModal] = useState(false);
   const [isImageUploaded, setIsImageUploaded] = useState(false);
+  const { data: session } = useSession();
+  const [admin, setAdmin] = useState<boolean>(false);
   const {
     productos,
     categories,
@@ -39,7 +44,12 @@ const AdminProductPanel = () => {
 
   useEffect(() => {
     getProductsFromAPI();
+    setAdmin(session ? isAdmin(session) : false);
   }, []);
+
+  if (!admin) {
+    return <NotFound />;
+  }
 
   const filteredProducts = productos.filter(
     (product) =>
