@@ -1,15 +1,14 @@
 'use client'
 
 import MaxWidthWrapper from "@/components/layouts/MaxWidthWrapper";
+import Checkout from "@/components/payment/Checkout";
 
 const Payment = () => {
   
   return (
     <MaxWidthWrapper>
       
-      <h3>
-        ACA SE VA A IMPLEMENTAR EL METODO DE PAGO
-      </h3>
+      <Checkout />
       
     </MaxWidthWrapper>
   );
