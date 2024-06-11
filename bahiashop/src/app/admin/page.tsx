@@ -4,8 +4,23 @@ import Link from "next/link";
 import MaxWidthWrapper from "@/components/layouts/MaxWidthWrapper";
 import { Card } from "flowbite-react";
 import Image from "next/image";
+import { isAdmin } from "@/lib/utils";
+import NotFound from "@/app/not-found";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 const AdminPanel = () => {
+  const { data: session } = useSession();
+  const [admin, setAdmin] = useState<boolean>(false);
+
+  useEffect(() => {
+    setAdmin(session ? isAdmin(session) : false);
+  });
+
+  if (!admin) {
+    return <NotFound />;
+  }
+
   return (
     <div>
       <h1 className="text-3xl font-bold text-center text-gray-900 dark:text-white my-8">
@@ -23,7 +38,7 @@ const AdminPanel = () => {
                 alt="{producto.name}"
                 width={400}
                 height={200}
-                style={{ height: "300px" }} 
+                style={{ height: "300px" }}
               />
             </div>
           </Card>
@@ -39,7 +54,7 @@ const AdminPanel = () => {
                 alt="{producto.name}"
                 width={400}
                 height={200}
-                style={{ height: "300px" }} 
+                style={{ height: "300px" }}
               />
             </div>
           </Card>
@@ -55,7 +70,7 @@ const AdminPanel = () => {
                 alt="{producto.name}"
                 width={400}
                 height={200}
-                style={{ height: "300px" }} 
+                style={{ height: "300px" }}
               />
             </div>
           </Card>

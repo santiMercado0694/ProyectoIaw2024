@@ -9,17 +9,17 @@ import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DropzoneComponent from "@/components/DropzoneComponent";
 
-const AdminCategoriesPanel = () => {
+const AdminProductPanel = () => {
   const [addProductModal, setAddProductModal] = useState(false);
   const [editProductModal, setEditProductModal] = useState(false);
   const [deleteProductModal, setDeleteProductModal] = useState(false);
+  const [isImageUploaded, setIsImageUploaded] = useState(false);
   const {
     productos,
     categories,
     getProductsFromAPI,
-    getCategoryByName,
-    getCategoryById,
     createProduct,
     updateProduct,
     deleteProduct,
@@ -41,8 +41,13 @@ const AdminCategoriesPanel = () => {
     getProductsFromAPI();
   }, []);
 
-  const filteredProducts = productos.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProducts = productos.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      categories
+        .find((category) => category.id === String(product.category_id))
+        ?.nombre.toLowerCase()
+        .includes(searchTerm.toLowerCase())
   );
 
   const navigateToAdmin = () => {
@@ -55,10 +60,47 @@ const AdminCategoriesPanel = () => {
     >
   ) => {
     const { name, value } = event.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+
+    if (name === "productPrice" && parseFloat(value) < 0) {
+      // Establecer el valor del precio en 0
+      setFormData((prevData) => ({
+        ...prevData,
+        productPrice: "0", // También puedes usar 0 directamente si el valor debe ser numérico
+      }));
+    } else if (name === "productStock" && parseFloat(value) < 0) {
+      // Establecer el valor del stock en 0
+      setFormData((prevData) => ({
+        ...prevData,
+        productStock: "0", // También puedes usar 0 directamente si el valor debe ser numérico
+      }));
+    } else {
+      // En cualquier otro caso, actualizar el estado normalmente
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handleDrop = (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    const fileName = file.name;
+    const reader = new FileReader();
+    reader.onload = () => {
+      // Obtener la URL de la imagen cargada
+      const imageUrl = reader.result as string;
+      // Mostrar la imagen temporalmente en la previsualización
+      const imagePreview = document.getElementById(
+        "image-preview"
+      ) as HTMLImageElement;
+      if (imagePreview) {
+        imagePreview.src = imageUrl;
+      }
+    };
+    reader.readAsDataURL(file);
+
+    setFormData({ ...formData, productImage: fileName });
+    setIsImageUploaded(true);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -151,9 +193,22 @@ const AdminCategoriesPanel = () => {
         productStock: "",
         productImage: "",
       });
+      toast.success(`Se edito el producto exitosamente!`, {
+        position: "top-right",
+        style: {
+          width: "300px",
+          fontSize: "1rem",
+        },
+      });
     } catch (error) {
       console.error("Error al actualizar el producto:", error);
-      // Handle error message or display notification
+      toast.error("Error al editar el producto", {
+        position: "top-right",
+        style: {
+          width: "300px",
+          fontSize: "1rem",
+        },
+      });
     }
   };
 
@@ -163,10 +218,23 @@ const AdminCategoriesPanel = () => {
       await deleteProduct(selectedProduct.id);
       setDeleteProductModal(false);
       toast.success(
-        `Se eliminó el producto ${selectedProduct.name} exitosamente!`
+        `Se eliminó el producto ${selectedProduct.name} exitosamente!`,
+        {
+          position: "top-right",
+          style: {
+            width: "300px",
+            fontSize: "1rem",
+          },
+        }
       );
     } catch (error) {
-      toast.error("Error al eliminar el producto");
+      toast.error("Error al eliminar el producto", {
+        position: "top-right",
+        style: {
+          width: "300px",
+          fontSize: "1rem",
+        },
+      });
     }
   };
 
@@ -254,11 +322,20 @@ const AdminCategoriesPanel = () => {
                       key={product.id}
                       className="border-b dark:border-gray-700"
                     >
-                      <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                      <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white flex items-center">
+                        <img
+                          src={"/products/" + product.image_path}
+                          alt={"Product Image"}
+                          className="h-8 w-auto mr-3"
+                        />
                         {product.name}
                       </td>
+
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {categories.find((category) => category.id === String(product.category_id))?.nombre || 'N/A'}
+                        {categories.find(
+                          (category) =>
+                            category.id === String(product.category_id)
+                        )?.nombre || "N/A"}
                       </td>
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         <div className="flex items-center mr-3">
@@ -267,7 +344,7 @@ const AdminCategoriesPanel = () => {
                       </td>
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         <div className="flex items-center mr-3">
-                          ${product.price}
+                          ${product.price.toLocaleString()}
                         </div>
                       </td>
                       <td className="px-4 py-3 ">
@@ -308,150 +385,8 @@ const AdminCategoriesPanel = () => {
         show={addProductModal}
         size="md"
         popup
-        onClose={() => setAddProductModal(false)}
-      >
-        <Modal.Header>Agregar Producto</Modal.Header>
-        <Modal.Body>
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <div>
-                <label
-                  htmlFor="productName"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Nombre del Producto
-                </label>
-                <input
-                  type="text"
-                  name="productName"
-                  id="productName"
-                  value={formData.productName}
-                  onChange={handleFormChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="productDetails"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Detalles del Producto
-                </label>
-                <textarea
-                  name="productDetails"
-                  id="productDetails"
-                  value={formData.productDetails}
-                  onChange={handleFormChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="productDescription"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Descripción del Producto
-                </label>
-                <textarea
-                  name="productDescription"
-                  id="productDescription"
-                  value={formData.productDescription}
-                  onChange={handleFormChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="productCategory"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Categoria del Producto
-                </label>
-                <select
-                  name="productCategory"
-                  id="productCategory"
-                  value={formData.productCategory}
-                  onChange={handleFormChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  required
-                >
-                  <option value="">Seleccione una categoría</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.nombre}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label
-                  htmlFor="productPrice"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Precio del Producto
-                </label>
-                <input
-                  type="number"
-                  name="productPrice"
-                  id="productPrice"
-                  value={formData.productPrice}
-                  onChange={handleFormChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="productStock"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Stock del Producto
-                </label>
-                <input
-                  type="number"
-                  name="productStock"
-                  id="productStock"
-                  value={formData.productStock}
-                  onChange={handleFormChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="productImage"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Imagen del Producto
-                </label>
-                <input
-                  type="text"
-                  name="productImage"
-                  id="productImage"
-                  value={formData.productImage}
-                  onChange={handleFormChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  required
-                />
-              </div>
-            </div>
-          </form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button type="submit">Agregar Producto</Button>
-          <Button onClick={() => setAddProductModal(false)} color="gray">
-            Cancelar
-          </Button>
-        </Modal.Footer>
-      </Modal>
-      <Modal
-        show={editProductModal}
-        size="md"
-        popup
-        onClose={() => { setEditProductModal(false)
+        onClose={() => {
+          setAddProductModal(false);
           setFormData({
             productName: "",
             productDetails: "",
@@ -461,13 +396,16 @@ const AdminCategoriesPanel = () => {
             productStock: "",
             productImage: "",
           });
+          setIsImageUploaded(false);
         }}
       >
-        <Modal.Header>Editar Producto</Modal.Header>
-        <Modal.Body>
-          <form onSubmit={handleUpdateProduct}>
-            <div className="mb-4">
-              <div>
+        <Modal.Header className="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
+          Agregar Producto
+        </Modal.Header>
+        <Modal.Body className="relative p-4 w-full max-w-3xl h-full md:h-auto bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="mb-4 w-full max-w-4xl mx-auto">
+              <div className="mb-4">
                 <label
                   htmlFor="productName"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -480,27 +418,30 @@ const AdminCategoriesPanel = () => {
                   id="productName"
                   value={formData.productName}
                   onChange={handleFormChange}
+                  maxLength={30}
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                   required
                 />
               </div>
-              <div>
+              <div className="mb-4">
                 <label
                   htmlFor="productDetails"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  Detalles del Producto
+                  Detalles del Producto(Maximo 50 Caracteres)
                 </label>
-                <textarea
+                <input
+                  type="text"
                   name="productDetails"
                   id="productDetails"
                   value={formData.productDetails}
                   onChange={handleFormChange}
+                  maxLength={50}
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                   required
                 />
               </div>
-              <div>
+              <div className="mb-4">
                 <label
                   htmlFor="productDescription"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -516,7 +457,7 @@ const AdminCategoriesPanel = () => {
                   required
                 />
               </div>
-              <div>
+              <div className="mb-4">
                 <label
                   htmlFor="productCategory"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -531,7 +472,9 @@ const AdminCategoriesPanel = () => {
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                   required
                 >
-                  <option value="">Seleccione una categoría</option>
+                  <option value="" disabled>
+                    Seleccione una categoría
+                  </option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.nombre}
@@ -539,7 +482,7 @@ const AdminCategoriesPanel = () => {
                   ))}
                 </select>
               </div>
-              <div>
+              <div className="mb-4">
                 <label
                   htmlFor="productPrice"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -556,7 +499,188 @@ const AdminCategoriesPanel = () => {
                   required
                 />
               </div>
-              <div>
+              <div className="mb-4">
+                <label
+                  htmlFor="productStock"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Stock del Producto
+                </label>
+                <input
+                  type="number"
+                  name="productStock"
+                  id="productStock"
+                  value={formData.productStock}
+                  onChange={handleFormChange}
+                  min="0" // Establecer el valor mínimo como 0 para evitar números negativos
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="productImage"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Imagen del Producto
+                </label>
+                <DropzoneComponent onDrop={handleDrop} />
+                {formData.productImage && (
+                  <img
+                    id="image-preview"
+                    src={formData.productImage}
+                    alt="Product Preview"
+                    className="mt-2 h-48 object-cover"
+                  />
+                )}
+                {!isImageUploaded && (
+                  <p className="text-red-500 text-xs mt-1">
+                    Por favor, carga una imagen.
+                  </p>
+                )}
+              </div>
+
+              <div className="w-full flex justify-start mt-4">
+                <Button type="submit">Agregar Producto</Button>
+                <Button
+                  onClick={() => {
+                    setAddProductModal(false);
+                    setFormData({
+                      productName: "",
+                      productDetails: "",
+                      productDescription: "",
+                      productCategory: "",
+                      productPrice: "",
+                      productStock: "",
+                      productImage: "",
+                    });
+                    setIsImageUploaded(false);
+                  }}
+                  color="gray"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          </form>
+        </Modal.Body>
+      </Modal>
+      <Modal
+        show={editProductModal}
+        size="md"
+        popup
+        onClose={() => {
+          setEditProductModal(false);
+          setFormData({
+            productName: "",
+            productDetails: "",
+            productDescription: "",
+            productCategory: "",
+            productPrice: "",
+            productStock: "",
+            productImage: "",
+          });
+          setIsImageUploaded(false);
+        }}
+      >
+        <Modal.Header className="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
+          Editar Producto
+        </Modal.Header>
+        <Modal.Body className="relative p-4 w-full max-w-3xl h-full md:h-auto bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5">
+          <form onSubmit={handleUpdateProduct}>
+            <div className="mb-4 w-full max-w-4xl mx-auto">
+              <div className="mb-4">
+                <label
+                  htmlFor="productName"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Nombre del Producto
+                </label>
+                <input
+                  type="text"
+                  name="productName"
+                  id="productName"
+                  value={formData.productName}
+                  onChange={handleFormChange}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="productDetails"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Detalles del Producto(Maximo 50 Caracteres)
+                </label>
+                <input
+                  type="text"
+                  name="productDetails"
+                  id="productDetails"
+                  value={formData.productDetails}
+                  onChange={handleFormChange}
+                  maxLength={50}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="productDescription"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Descripción del Producto
+                </label>
+                <textarea
+                  name="productDescription"
+                  id="productDescription"
+                  value={formData.productDescription}
+                  rows={10}
+                  onChange={handleFormChange}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="productCategory"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Categoria del Producto
+                </label>
+                <select
+                  name="productCategory"
+                  id="productCategory"
+                  value={formData.productCategory}
+                  onChange={handleFormChange}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  required
+                >
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="productPrice"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Precio del Producto
+                </label>
+                <input
+                  type="number"
+                  name="productPrice"
+                  id="productPrice"
+                  value={formData.productPrice}
+                  onChange={handleFormChange}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
                 <label
                   htmlFor="productStock"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -573,37 +697,42 @@ const AdminCategoriesPanel = () => {
                   required
                 />
               </div>
-              <div>
+              <div className="mb-4">
                 <label
                   htmlFor="productImage"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Imagen del Producto
                 </label>
-                <input
-                  type="text"
-                  name="productImage"
-                  id="productImage"
-                  value={formData.productImage}
-                  onChange={handleFormChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  required
-                />
+                <DropzoneComponent onDrop={handleDrop} />
+                {formData.productImage && (
+                  <img
+                    id="image-preview"
+                    src={"/products/" + formData.productImage}
+                    alt="Product Preview"
+                    className="mt-2 h-48 object-cover"
+                  />
+                )}
               </div>
             </div>
             <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-start md:space-x-3 flex-shrink-0">
               <Button type="submit">Guardar Cambios</Button>
-              <Button onClick={() => { setEditProductModal(false)
-                setFormData({
-                  productName: "",
-                  productDetails: "",
-                  productDescription: "",
-                  productCategory: "",
-                  productPrice: "",
-                  productStock: "",
-                  productImage: "",
-                });
-              }} color="gray">
+              <Button
+                onClick={() => {
+                  setEditProductModal(false);
+                  setFormData({
+                    productName: "",
+                    productDetails: "",
+                    productDescription: "",
+                    productCategory: "",
+                    productPrice: "",
+                    productStock: "",
+                    productImage: "",
+                  });
+                  setIsImageUploaded(false);
+                }}
+                color="gray"
+              >
                 Cancelar
               </Button>
             </div>
@@ -639,4 +768,4 @@ const AdminCategoriesPanel = () => {
   );
 };
 
-export default AdminCategoriesPanel;
+export default AdminProductPanel;
