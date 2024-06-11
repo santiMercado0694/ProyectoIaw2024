@@ -70,7 +70,7 @@ interface AppContextProps {
   getCategories: () => Promise<void>;
   getCategoriesNames: () => Promise<void>;
   getCategoryById: (id: string) => Promise<Category>;
-  getCategoryByName: (name: string) => Promise<void>;
+  getCategoryByName: (name: string) => Promise<Category>;
   createCategory: (name: string) => Promise<void>;
   updateCategory: (id: string, name: string) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
@@ -406,6 +406,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
         throw new Error('Error al obtener la categoría por nombre');
       }
       const data = await response.json();
+      return data[0];
     } catch (error) {
       console.error('Error:', error);
     }
@@ -541,12 +542,12 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/update`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(user),
+            body: JSON.stringify({ user_id: user.user_id, rol: user.rol }), 
         });
         if (!response.ok) {
             throw new Error('Error al actualizar usuario');
         }
-        await getUsers();
+        await getUsers(); 
     } catch (error) {
         console.error('Error:', error);
     }
@@ -588,6 +589,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     getProductsFromAPI();
     getCategories();
+    getUsers();
   }, []);
 
   return (

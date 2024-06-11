@@ -38,5 +38,5 @@ export function isAdmin(data:Session) : boolean {
     return false;
   
   let rol = parseJwt(data.user.token)['rol'];
-  return rol == 'admin'
+  return rol == 'Admin'
 }
