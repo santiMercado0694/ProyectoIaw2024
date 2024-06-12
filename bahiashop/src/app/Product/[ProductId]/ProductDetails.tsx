@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Image from 'next/image'
+import {CldImage} from "next-cloudinary";
 
 interface ProductDetailsProps {
     product: Product;
@@ -60,8 +61,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, addProductCart
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
-            <Image
-                src={`/products/${product.image_path}`}
+            <CldImage
+                src={product.image_path}
                 alt={`${product.name}`}
                 width={500} 
                 height={500} 

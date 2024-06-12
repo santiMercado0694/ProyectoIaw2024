@@ -3,22 +3,22 @@
 import MaxWidthWrapper from "@/components/layouts/MaxWidthWrapper";
 import { useGlobalContext, Product } from "@/context/StoreProvider";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { Button, Modal } from "flowbite-react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import DropzoneComponent from "@/components/DropzoneComponent";
 import { useSession } from "next-auth/react";
 import { isAdmin } from "@/lib/utils";
 import NotFound from "@/app/not-found";
+import { CldImage, CldUploadButton } from "next-cloudinary";
 
 const AdminProductPanel = () => {
   const [addProductModal, setAddProductModal] = useState(false);
   const [editProductModal, setEditProductModal] = useState(false);
   const [deleteProductModal, setDeleteProductModal] = useState(false);
-  const [isImageUploaded, setIsImageUploaded] = useState(false);
+  const [imagePath, setImagePath] = useState("");
   const { data: session } = useSession();
   const [admin, setAdmin] = useState<boolean>(false);
   const {
@@ -75,13 +75,13 @@ const AdminProductPanel = () => {
       // Establecer el valor del precio en 0
       setFormData((prevData) => ({
         ...prevData,
-        productPrice: "0", // También puedes usar 0 directamente si el valor debe ser numérico
+        productPrice: "0",
       }));
     } else if (name === "productStock" && parseFloat(value) < 0) {
       // Establecer el valor del stock en 0
       setFormData((prevData) => ({
         ...prevData,
-        productStock: "0", // También puedes usar 0 directamente si el valor debe ser numérico
+        productStock: "0",
       }));
     } else {
       // En cualquier otro caso, actualizar el estado normalmente
@@ -90,27 +90,6 @@ const AdminProductPanel = () => {
         [name]: value,
       }));
     }
-  };
-
-  const handleDrop = (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    const fileName = file.name;
-    const reader = new FileReader();
-    reader.onload = () => {
-      // Obtener la URL de la imagen cargada
-      const imageUrl = reader.result as string;
-      // Mostrar la imagen temporalmente en la previsualización
-      const imagePreview = document.getElementById(
-        "image-preview"
-      ) as HTMLImageElement;
-      if (imagePreview) {
-        imagePreview.src = imageUrl;
-      }
-    };
-    reader.readAsDataURL(file);
-
-    setFormData({ ...formData, productImage: fileName });
-    setIsImageUploaded(true);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -124,7 +103,7 @@ const AdminProductPanel = () => {
         category_id: parseInt(formData.productCategory),
         price: parseFloat(formData.productPrice),
         stock: parseInt(formData.productStock),
-        image_path: formData.productImage,
+        image_path: imagePath,
       };
 
       await createProduct(newProduct);
@@ -170,6 +149,7 @@ const AdminProductPanel = () => {
       productStock: String(product.stock),
       productImage: product.image_path,
     });
+    setImagePath(product.image_path);
     setEditProductModal(true);
   };
 
@@ -188,7 +168,7 @@ const AdminProductPanel = () => {
         category_id: parseInt(formData.productCategory),
         price: parseFloat(formData.productPrice),
         stock: parseInt(formData.productStock),
-        image_path: formData.productImage,
+        image_path: imagePath,
       };
 
       await updateProduct(updatedProduct.id, updatedProduct);
@@ -246,6 +226,11 @@ const AdminProductPanel = () => {
         },
       });
     }
+  };
+
+  const onUploadSuccess = async (result: any) => {
+    setImagePath(result.info.public_id);
+    formData.productImage = imagePath;
   };
 
   return (
@@ -333,10 +318,13 @@ const AdminProductPanel = () => {
                       className="border-b dark:border-gray-700"
                     >
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white flex items-center">
-                        <img
-                          src={"/products/" + product.image_path}
+                        <CldImage
+                          width={50}
+                          height={50}
+                          src={product.image_path}
                           alt={"Product Image"}
-                          className="h-8 w-auto mr-3"
+                          // className="h-8 w-auto mr-3"
+                          className="mr-3"
                         />
                         {product.name}
                       </td>
@@ -406,7 +394,7 @@ const AdminProductPanel = () => {
             productStock: "",
             productImage: "",
           });
-          setIsImageUploaded(false);
+          setImagePath("");
         }}
       >
         <Modal.Header className="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
@@ -522,7 +510,7 @@ const AdminProductPanel = () => {
                   id="productStock"
                   value={formData.productStock}
                   onChange={handleFormChange}
-                  min="0" // Establecer el valor mínimo como 0 para evitar números negativos
+                  min="0"
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                   required
                 />
@@ -534,19 +522,17 @@ const AdminProductPanel = () => {
                 >
                   Imagen del Producto
                 </label>
-                <DropzoneComponent onDrop={handleDrop} />
-                {formData.productImage && (
-                  <img
-                    id="image-preview"
-                    src={formData.productImage}
-                    alt="Product Preview"
-                    className="mt-2 h-48 object-cover"
-                  />
-                )}
-                {!isImageUploaded && (
-                  <p className="text-red-500 text-xs mt-1">
-                    Por favor, carga una imagen.
-                  </p>
+                <CldUploadButton
+                  uploadPreset="unsigned_1"
+                  onSuccess={onUploadSuccess}
+                  className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                >
+                  Subir Imagen
+                </CldUploadButton>
+                {imagePath ? (
+                  <CldImage src={imagePath} alt="" width={300} height={200} />
+                ) : (
+                  ""
                 )}
               </div>
 
@@ -564,7 +550,7 @@ const AdminProductPanel = () => {
                       productStock: "",
                       productImage: "",
                     });
-                    setIsImageUploaded(false);
+                    setImagePath("");
                   }}
                   color="gray"
                 >
@@ -590,7 +576,7 @@ const AdminProductPanel = () => {
             productStock: "",
             productImage: "",
           });
-          setIsImageUploaded(false);
+          setImagePath("");
         }}
       >
         <Modal.Header className="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
@@ -714,14 +700,26 @@ const AdminProductPanel = () => {
                 >
                   Imagen del Producto
                 </label>
-                <DropzoneComponent onDrop={handleDrop} />
-                {formData.productImage && (
-                  <img
-                    id="image-preview"
-                    src={"/products/" + formData.productImage}
-                    alt="Product Preview"
-                    className="mt-2 h-48 object-cover"
+                <CldUploadButton
+                  uploadPreset="unsigned_1"
+                  onSuccess={onUploadSuccess}
+                  className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                >
+                  Subir Imagen
+                </CldUploadButton>
+                {imagePath ? (
+                  <CldImage
+                    src={imagePath}
+                    alt={
+                      selectedProduct?.name
+                        ? selectedProduct.name
+                        : "Product Image"
+                    }
+                    width={300}
+                    height={200}
                   />
+                ) : (
+                  ""
                 )}
               </div>
             </div>
@@ -739,7 +737,7 @@ const AdminProductPanel = () => {
                     productStock: "",
                     productImage: "",
                   });
-                  setIsImageUploaded(false);
+                  setImagePath("");
                 }}
                 color="gray"
               >
