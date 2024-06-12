@@ -93,6 +93,7 @@ export function ProductCard() {
                   alt={producto.name}
                   width={300}
                   height={200}
+                  style={{ width: '300px', height: '200px' }}
                 />
                 <div 
                   className="text-gray-700 dark:text-gray-300 mb-2 text-center"
