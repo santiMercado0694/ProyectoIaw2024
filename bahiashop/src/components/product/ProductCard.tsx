@@ -9,7 +9,8 @@ import { useRouter } from 'next/navigation';
 import { useSession } from "next-auth/react";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Image from 'next/image'; 
+import Image from 'next/image';
+import {CldImage} from "next-cloudinary";
 
 export function ProductCard() {
   const { productos, setSearch, search, getProductsByCategory, addProductCart } = useGlobalContext();
@@ -87,8 +88,8 @@ export function ProductCard() {
                 >
                   {producto.name}
                 </h5>
-                <Image
-                  src={`/products/${producto.image_path}`}
+                <CldImage
+                  src={producto.image_path}
                   alt={producto.name}
                   width={300}
                   height={200}

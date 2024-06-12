@@ -10,6 +10,7 @@ import CardMedia from '@mui/material/CardMedia';
 import { useGlobalContext } from '@/context/StoreProvider';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {CldImage} from "next-cloudinary";
 
 interface CartItemProps {
   product: Cart;
@@ -41,12 +42,14 @@ const CartItem: React.FC<CartItemProps> = ({ product, user_id }) => {
             <h3>{product.quantity} x ${product.price.toLocaleString()}</h3>
           </Box>
 
-          <CardMedia
-            component="img"
-            sx={{ width: '50%', marginBottom: '10px' }}
-            image={'/products/' + product.image_path}
-            alt="prod img"
-          />
+          <CardContent sx={{ width: '50%', marginBottom: '10px' }} >
+            <CldImage
+              src={product.image_path}
+              alt={product.name}
+              width={300}
+              height={200}
+            />
+          </CardContent>
 
           <button
             className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 focus:outline-none"

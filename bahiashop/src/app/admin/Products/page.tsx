@@ -3,7 +3,7 @@
 import MaxWidthWrapper from "@/components/layouts/MaxWidthWrapper";
 import { useGlobalContext, Product } from "@/context/StoreProvider";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { Button, Modal } from "flowbite-react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { FaEdit, FaRegTrashAlt } from "react-icons/fa";
@@ -13,12 +13,13 @@ import DropzoneComponent from "@/components/DropzoneComponent";
 import { useSession } from "next-auth/react";
 import { isAdmin } from "@/lib/utils";
 import NotFound from "@/app/not-found";
+import {CldImage, CldUploadButton} from "next-cloudinary";
 
 const AdminProductPanel = () => {
   const [addProductModal, setAddProductModal] = useState(false);
   const [editProductModal, setEditProductModal] = useState(false);
   const [deleteProductModal, setDeleteProductModal] = useState(false);
-  const [isImageUploaded, setIsImageUploaded] = useState(false);
+  const [imagePath, setImagePath] = useState('');
   const { data: session } = useSession();
   const [admin, setAdmin] = useState<boolean>(false);
   const {
@@ -110,7 +111,7 @@ const AdminProductPanel = () => {
     reader.readAsDataURL(file);
 
     setFormData({ ...formData, productImage: fileName });
-    setIsImageUploaded(true);
+    setImagePath('');
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -124,7 +125,7 @@ const AdminProductPanel = () => {
         category_id: parseInt(formData.productCategory),
         price: parseFloat(formData.productPrice),
         stock: parseInt(formData.productStock),
-        image_path: formData.productImage,
+        image_path: imagePath,
       };
 
       await createProduct(newProduct);
@@ -170,6 +171,7 @@ const AdminProductPanel = () => {
       productStock: String(product.stock),
       productImage: product.image_path,
     });
+    setImagePath(product.image_path)
     setEditProductModal(true);
   };
 
@@ -188,7 +190,7 @@ const AdminProductPanel = () => {
         category_id: parseInt(formData.productCategory),
         price: parseFloat(formData.productPrice),
         stock: parseInt(formData.productStock),
-        image_path: formData.productImage,
+        image_path: imagePath,
       };
 
       await updateProduct(updatedProduct.id, updatedProduct);
@@ -247,6 +249,11 @@ const AdminProductPanel = () => {
       });
     }
   };
+  
+  const onUploadSuccess = async (result:any) => {
+    setImagePath(result.info.public_id);
+    formData.productImage = imagePath;
+  }
 
   return (
     <MaxWidthWrapper>
@@ -333,10 +340,13 @@ const AdminProductPanel = () => {
                       className="border-b dark:border-gray-700"
                     >
                       <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white flex items-center">
-                        <img
-                          src={"/products/" + product.image_path}
+                        <CldImage
+                          width={50}
+                          height={50}
+                          src={product.image_path}
                           alt={"Product Image"}
-                          className="h-8 w-auto mr-3"
+                          // className="h-8 w-auto mr-3"
+                          className="mr-3"
                         />
                         {product.name}
                       </td>
@@ -406,7 +416,7 @@ const AdminProductPanel = () => {
             productStock: "",
             productImage: "",
           });
-          setIsImageUploaded(false);
+          setImagePath('');
         }}
       >
         <Modal.Header className="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
@@ -534,7 +544,24 @@ const AdminProductPanel = () => {
                 >
                   Imagen del Producto
                 </label>
-                <DropzoneComponent onDrop={handleDrop} />
+                <CldUploadButton
+                  uploadPreset="unsigned_1"
+                  onSuccess={onUploadSuccess}
+                />
+                {
+                  imagePath ?
+                    (
+                      <CldImage
+                        src={imagePath}
+                        alt=''
+                        width={300}
+                        height={200}
+                      />
+                    ) :
+                    ''
+                }
+                
+                {/*<DropzoneComponent onDrop={handleDrop} />
                 {formData.productImage && (
                   <img
                     id="image-preview"
@@ -547,7 +574,7 @@ const AdminProductPanel = () => {
                   <p className="text-red-500 text-xs mt-1">
                     Por favor, carga una imagen.
                   </p>
-                )}
+                )}*/}
               </div>
 
               <div className="w-full flex justify-start mt-4">
@@ -564,7 +591,7 @@ const AdminProductPanel = () => {
                       productStock: "",
                       productImage: "",
                     });
-                    setIsImageUploaded(false);
+                    setImagePath('');
                   }}
                   color="gray"
                 >
@@ -590,7 +617,7 @@ const AdminProductPanel = () => {
             productStock: "",
             productImage: "",
           });
-          setIsImageUploaded(false);
+          setImagePath('');
         }}
       >
         <Modal.Header className="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
@@ -714,7 +741,23 @@ const AdminProductPanel = () => {
                 >
                   Imagen del Producto
                 </label>
-                <DropzoneComponent onDrop={handleDrop} />
+                <CldUploadButton
+                  uploadPreset="unsigned_1"
+                  onSuccess={onUploadSuccess}
+                />
+                {
+                  imagePath ?
+                    (
+                      <CldImage
+                        src={imagePath}
+                        alt={selectedProduct?.name}
+                        width={300}
+                        height={200}
+                      />
+                    ) :
+                    ''
+                }
+                {/*<DropzoneComponent onDrop={handleDrop} />
                 {formData.productImage && (
                   <img
                     id="image-preview"
@@ -722,7 +765,7 @@ const AdminProductPanel = () => {
                     alt="Product Preview"
                     className="mt-2 h-48 object-cover"
                   />
-                )}
+                )}*/}
               </div>
             </div>
             <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-start md:space-x-3 flex-shrink-0">
@@ -739,7 +782,7 @@ const AdminProductPanel = () => {
                     productStock: "",
                     productImage: "",
                   });
-                  setIsImageUploaded(false);
+                  setImagePath('');
                 }}
                 color="gray"
               >
