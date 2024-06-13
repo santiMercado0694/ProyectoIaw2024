@@ -70,42 +70,50 @@ const CartItem: React.FC<CartItemProps> = ({ product, user_id }) => {
             <h3>
               {product.quantity} x ${product.price.toLocaleString()}
             </h3>
-              <div className="text-teal-400 py-1">
-                <strong>STOCK DISPONIBLE: {product.stock}</strong>
-              </div>  
-              <div className="flex items-center space-x-2">
-                <span className="font-semibold">MODIFICAR:</span>
-                <div className="flex items-center space-x-2">
-                  <button
-                    className="bg-gray-200 px-1 py-0.5 rounded-md"
-                    onClick={decrementQuantity}
-                    disabled={quantity === 1}
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    min="1"
-                    max={product.stock}
-                    value={quantity}
-                    className="w-14 px-2 py-1 border border-gray-300 rounded-md text-center"
-                    readOnly
-                  />
-                  <button
-                    className="bg-gray-200 px-1 py-0.5 rounded-md"
-                    onClick={incrementQuantity}
-                    disabled={quantity === product.stock}
-                  >
-                    +
-                  </button>
-                  <button
-                    className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 focus:outline-none"
-                    onClick={handleEditQuantity}
-                  >
-                    <FaEdit />
-                  </button>
+            {product.stock > 0 ? (
+              <>
+                <div className="text-teal-400 py-1">
+                  <strong>STOCK DISPONIBLE: {product.stock}</strong>
                 </div>
+                <div className="flex items-center space-x-2">
+                  <span className="font-semibold">MODIFICAR:</span>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      className="bg-gray-200 px-1 py-0.5 rounded-md"
+                      onClick={decrementQuantity}
+                      disabled={quantity === 1}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min="1"
+                      max={product.stock}
+                      value={quantity}
+                      className="w-14 px-2 py-1 border border-gray-300 rounded-md text-center"
+                      readOnly
+                    />
+                    <button
+                      className="bg-gray-200 px-1 py-0.5 rounded-md"
+                      onClick={incrementQuantity}
+                      disabled={quantity === product.stock}
+                    >
+                      +
+                    </button>
+                    <button
+                      className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 focus:outline-none"
+                      onClick={handleEditQuantity}
+                    >
+                      <FaEdit />
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-rose-400">
+                <strong>SIN STOCK DISPONIBLE</strong>
               </div>
+            )}
           </Box>
 
           <CardContent sx={{ width: "50%", marginBottom: "10px" }}>
