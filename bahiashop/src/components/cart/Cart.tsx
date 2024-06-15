@@ -1,25 +1,36 @@
-"use client"
+"use client";
 
-import React, { useEffect } from 'react';
-import { ShoppingCart } from 'lucide-react';
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
-import { Separator } from '../ui/separator';
-import Link from 'next/link';
-import { buttonVariants } from '../ui/button';
-import Image from 'next/image';
-import { Cart, useGlobalContext } from '@/context/StoreProvider';
-import CartItem from '@/components/cart/CartItem';
-import { useSession } from 'next-auth/react';
+import React, { useEffect, useState } from "react";
+import { ShoppingCart } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "../ui/sheet";
+import { Separator } from "../ui/separator";
+import { useRouter } from 'next/navigation';
+import { buttonVariants } from "../ui/button";
+import Image from "next/image";
+import { Cart, useGlobalContext } from "@/context/StoreProvider";
+import CartItem from "@/components/cart/CartItem";
+import { useSession } from "next-auth/react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CartComponent = () => {
   const { cart, getCartByUserId } = useGlobalContext();
   const { data: session } = useSession();
+  const router = useRouter();
+  const [hasOutOfStock, setHasOutOfStock] = useState(false); // Estado para verificar si hay productos sin stock
 
   useEffect(() => {
     if (session && session.user && session.user.user_id) {
       getCartByUserId(session.user.user_id);
     }
-  }, [session, getCartByUserId]); 
+  }, [session, getCartByUserId]);
 
   let sum = 0;
   cart.forEach((p) => (sum += p.price * p.quantity));
@@ -29,6 +40,28 @@ const CartComponent = () => {
     totalItems += product.quantity;
   });
 
+  useEffect(() => {
+    // Verificar si hay productos sin stock
+    const hasOutOfStockProducts = cart.some((product) => product.stock <= 0);
+    setHasOutOfStock(hasOutOfStockProducts);
+  }, [cart]);
+
+  const handleFinalizePurchase = () => {
+    // Lógica para finalizar la compra
+    if (hasOutOfStock) {
+      // Mostrar toast de error si hay productos sin stock
+      toast.error("¡Hay productos sin stock en el carrito!", {
+        position: "top-left",
+        style: {
+          width: "300px",
+          fontSize: "1rem",
+        },
+      });
+    } else {
+      router.push("/Payment");
+    }
+  };
+
   return (
     <Sheet>
       <SheetTrigger className="group -m-2 flex items-center p-2">
@@ -36,7 +69,9 @@ const CartComponent = () => {
           aria-hidden="true"
           className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
         />
-        <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">{totalItems}</span>
+        <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
+          {totalItems}
+        </span>
       </SheetTrigger>
       <SheetContent className="overflow-y-auto fkex w-full flex-col pr-0 sm:max-w-lg max-h-[calc(100vh-64px)]">
         <SheetHeader className="space-y-2.5 pr-6">
@@ -49,8 +84,8 @@ const CartComponent = () => {
                 <CartItem
                   key={product.cart_item_id}
                   product={product}
-                  user_id={session?.user?.user_id} 
-              />
+                  user_id={session?.user?.user_id}
+                />
               ))}
             </div>
             <div className="space-y-4 pr-6">
@@ -68,16 +103,22 @@ const CartComponent = () => {
 
               <SheetFooter>
                 <SheetTrigger asChild>
-                  <Link href="/Payment" className={buttonVariants({ className: 'w-full' })}>
+                  <button
+                    onClick={handleFinalizePurchase}
+                    className={buttonVariants({ className: "w-full" })}
+                  >
                     Finalizar Compra
-                  </Link>
+                  </button>
                 </SheetTrigger>
               </SheetFooter>
             </div>
           </>
         ) : (
           <div className="flex h-full flex-col items-center justify-center space-y-1">
-            <div aria-hidden="true" className="relative mb-4 h-60 w-60 text-muted-foreground">
+            <div
+              aria-hidden="true"
+              className="relative mb-4 h-60 w-60 text-muted-foreground"
+            >
               <Image src="/EmptyCart.webp" fill alt=" empty shopping cart" />
             </div>
             <div className="text-xl font-semibold"> Tu carrito esta vacio</div>
@@ -89,6 +130,3 @@ const CartComponent = () => {
 };
 
 export default CartComponent;
-
-
-

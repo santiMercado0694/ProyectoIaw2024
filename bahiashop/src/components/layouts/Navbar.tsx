@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import MaxWidthWrapper from "./MaxWidthWrapper";
-import { Icons } from "../Icons";
 import { buttonVariants } from "../ui/button";
 import Cart from "../cart/Cart";
 import { signOut, useSession } from "next-auth/react";
-import { useRouter } from 'next/navigation';
-import { isAdmin } from "@/lib/utils"
+import { useRouter, usePathname } from 'next/navigation';
+import { isAdmin } from "@/lib/utils";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Image from 'next/image';
@@ -16,6 +15,7 @@ import Image from 'next/image';
 const Navbar = () => {
     const { data: session } = useSession();
     const router = useRouter();
+    const pathname = usePathname()
 
     const [admin, setAdmin] = useState<boolean>(false);
 
@@ -59,10 +59,12 @@ const Navbar = () => {
                                         >
                                             CERRAR SESIÓN
                                         </button>
-                                        <div className="ml-4 flow-root lg:ml-6">
-                                            <Cart />
-                                            <ToastContainer />
-                                        </div>
+                                        {pathname !== '/Payment' && (
+                                            <div className="ml-4 flow-root lg:ml-6">
+                                                <Cart />
+                                                <ToastContainer />
+                                            </div>
+                                        )}
                                     </>
                                 ) : (
                                     <>
@@ -85,6 +87,3 @@ const Navbar = () => {
 }
 
 export default Navbar;
-
-
-
