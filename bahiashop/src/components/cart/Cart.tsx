@@ -58,7 +58,7 @@ const CartComponent = () => {
         },
       });
     } else {
-      router.push("/Payment");
+      router.push("/payment");
     }
   };
 
