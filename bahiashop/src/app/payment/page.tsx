@@ -12,9 +12,8 @@ const Payment = () => {
   const {cart} = useGlobalContext();
   
   return (
-    <MPProvider>
+    
       <MaxWidthWrapper className="flex flex-col lg:flex-row h-screen" >
-      
         <div className="flex flex-col w-2/3 pt-10 items-center border border-green-500">
           {cart.map( item => (
             <PaymentProduct key={item.cart_item_id} item={item} />
@@ -22,11 +21,10 @@ const Payment = () => {
         </div>
         
         <div className="flex w-1/3 pt-20 justify-center border border-red-600">
-          <MPButton></MPButton>
+          <MPButton/>
         </div>
       
       </MaxWidthWrapper>
-    </MPProvider>
   );
 };
 
