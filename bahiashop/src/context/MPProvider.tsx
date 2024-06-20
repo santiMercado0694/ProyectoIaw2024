@@ -1,5 +1,3 @@
-"use client"
-
 import React, {ReactNode, useContext} from "react";
 
 interface MPProviderProps {

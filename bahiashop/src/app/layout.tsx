@@ -6,7 +6,6 @@ import Navbar from "@/components/layouts/Navbar";
 import { AppProvider } from "@/context/StoreProvider";
 import SessionWrapper from "@/context/SessionWrapper";
 import { Footer } from "@/components/layouts/Footer";
-import { MPProvider } from "@/context/MPProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,7 +21,6 @@ export default function RootLayout({
 }>) {
   return (
     <SessionWrapper>
-      <MPProvider>
         <AppProvider>
           <html lang="en" className="h-full">
             <body
@@ -42,7 +40,6 @@ export default function RootLayout({
             </body>
           </html>
         </AppProvider>
-      </MPProvider>
     </SessionWrapper>
   );
 }
