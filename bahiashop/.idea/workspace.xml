@@ -5,11 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6f017412-a971-4759-9647-ca7ea23ed064" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/Cart.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Cart.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/NavItems.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/NavItems.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/context/StoreProvider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/context/StoreProvider.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,14 +44,14 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "D:/Proyectos/nextjs-starter-medusa",
+    "last_opened_file_path": "C:/Users/Lucas/Desktop/ProyectoIaw2024/bahiashop",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "preferences.keymap",
-    "ts.external.directory.path": "D:\\Proyectos\\proyecto_iaw\\bahiashop\\node_modules\\typescript\\lib",
+    "ts.external.directory.path": "C:\\Users\\Lucas\\Desktop\\ProyectoIaw2024\\bahiashop\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -74,6 +71,7 @@
       <updated>1716753055862</updated>
       <workItem from="1716753057597" duration="3319000" />
       <workItem from="1716764783642" duration="19495000" />
+      <workItem from="1718922976583" duration="3314000" />
     </task>
     <servers />
   </component>
